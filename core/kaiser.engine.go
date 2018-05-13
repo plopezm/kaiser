@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/plopezm/kaiser/core/models"
 	"github.com/plopezm/kaiser/core/parsers/file"
 	"github.com/plopezm/kaiser/utils/observer"
 )
@@ -26,7 +25,7 @@ func (obs ParserObserver) OnNotify(e observer.Event) {
 // JobEngine Represents the state machine manager
 type JobEngine struct {
 	parser JobParser
-	jobs   []*models.Job
+	jobs   []engine.Job
 }
 
 // New Returns the singleton instance of JobEngine
@@ -42,8 +41,8 @@ func New() *JobEngine {
 
 // Start Starts engine logic
 func (engine *JobEngine) Start() {
-	//TODO: Implement this
-	for {
-		time.Sleep(5000 * time.Millisecond)
+	for job := range engine.jobs {
+		job.Start()
+		time.Sleep(1000 * time.Millisecond)
 	}
 }

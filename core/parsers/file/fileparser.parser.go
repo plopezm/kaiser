@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/plopezm/kaiser/config"
-	"github.com/plopezm/kaiser/core/models"
+	"github.com/plopezm/kaiser/core/engine"
 	"github.com/plopezm/kaiser/core/parsers"
 	"github.com/plopezm/kaiser/utils/observer"
 )
@@ -15,17 +15,17 @@ import (
 // FileJobParser Is a parser who gets the jobs from workspace
 type FileJobParser struct {
 	observer.MapPublisher
-	jobs map[string]models.Job
+	jobs map[string]engine.Job
 }
 
 // GetJobs Returns all registered jobs
-func (parser *FileJobParser) GetJobs() map[string]models.Job {
+func (parser *FileJobParser) GetJobs() map[string]engine.Job {
 	return parser.jobs
 }
 
 // FileJobParserEvent Represents a FileJobParser event used in observers
 type FileJobParserEvent struct {
-	jobsFound []models.Job
+	jobsFound []engine.Job
 }
 
 // Code Returns the event code. EventCodes can be checked in core/parsers/parsers.codes.go
@@ -36,7 +36,7 @@ func (e FileJobParserEvent) Code() int {
 func init() {
 	// This should prepare everything for thread looking for new files
 	parser = new(FileJobParser)
-	parser.jobs = make(map[string]models.Job)
+	parser.jobs = make(map[string]engine.Job)
 	parser.Observers = make(map[observer.Observer]struct{})
 	go startParserScan()
 }
