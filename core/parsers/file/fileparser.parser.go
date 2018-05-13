@@ -41,16 +41,16 @@ func GetParser() *JobParser {
 
 func startParserScan() {
 	for {
-		log.Printf("[FileParser] Checking files in workspace \"%s\"\n", config.Configuration.Workspace)
+		// log.Printf("[FileParser] Checking files in workspace \"%s\"\n", config.Configuration.Workspace)
 		files, err := ioutil.ReadDir(config.Configuration.Workspace)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		log.Println("Files found: ")
+		// log.Println("Files found: ")
 		for _, f := range files {
 			if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
-				log.Println(f.Name())
+				// log.Println(f.Name())
 				parseJob(config.Configuration.Workspace + "/" + f.Name())
 			}
 		}
