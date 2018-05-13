@@ -22,6 +22,7 @@ type ParserObserver struct {
 // OnNotify Represents a callback when the parser founds new jobs
 func (obs ParserObserver) OnNotify(job interface{}) {
 	log.Println("Received notification", job)
+	engineInstance.jobs = append(engineInstance.jobs, job.(engine.Job))
 }
 
 // JobEngine Represents the state machine manager
@@ -43,8 +44,11 @@ func New() *JobEngine {
 
 // Start Starts engine logic
 func (engine *JobEngine) Start() {
-	for _, job := range engine.jobs {
-		job.Start()
-		time.Sleep(1000 * time.Millisecond)
+	for {
+		for _, job := range engine.jobs {
+			log.Println("[Engine] Executing job: ", job.Name)
+			job.Start()
+		}
+		time.Sleep(5000 * time.Millisecond)
 	}
 }

@@ -8,6 +8,12 @@ func init() {
 	vm = otto.New()
 }
 
+// Start Resolves the next logic tree
+func (job *Job) Start() {
+	job.Current = job.Begin
+	job.next(job.Args)
+}
+
 // Next Resolves the next logic tree
 func (job *Job) next(args []JobArgs) {
 	if job.Current == nil {
@@ -20,12 +26,6 @@ func (job *Job) next(args []JobArgs) {
 		job.Current = job.Current.negative
 	}
 	job.next(nextArgs)
-}
-
-// Start Resolves the next logic tree
-func (job *Job) Start() {
-	job.Current = job.Begin
-	job.next(job.Args)
 }
 
 // ExecuteScript Executes javascript code

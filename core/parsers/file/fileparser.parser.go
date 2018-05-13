@@ -51,7 +51,7 @@ func startParserScan() {
 		for _, f := range files {
 			if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
 				log.Println(f.Name())
-				parseJob(f.Name())
+				parseJob(config.Configuration.Workspace + "/" + f.Name())
 			}
 		}
 		time.Sleep(5000 * time.Millisecond)
