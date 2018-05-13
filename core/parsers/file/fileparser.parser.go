@@ -6,45 +6,36 @@ import (
 	"strings"
 	"time"
 
+	"github.com/plopezm/kaiser/utils"
+
 	"github.com/plopezm/kaiser/config"
 	"github.com/plopezm/kaiser/core/engine"
-	"github.com/plopezm/kaiser/core/parsers"
 	"github.com/plopezm/kaiser/utils/observer"
 )
 
-// FileJobParser Is a parser who gets the jobs from workspace
-type FileJobParser struct {
+// JobParser Is a parser who gets the jobs from workspace
+type JobParser struct {
 	observer.MapPublisher
 	jobs map[string]engine.Job
 }
 
 // GetJobs Returns all registered jobs
-func (parser *FileJobParser) GetJobs() map[string]engine.Job {
+func (parser *JobParser) GetJobs() map[string]engine.Job {
 	return parser.jobs
 }
 
-// FileJobParserEvent Represents a FileJobParser event used in observers
-type FileJobParserEvent struct {
-	jobsFound []engine.Job
-}
-
-// Code Returns the event code. EventCodes can be checked in core/parsers/parsers.codes.go
-func (e FileJobParserEvent) Code() int {
-	return parsers.EventCodeFileParser
-}
+var parser *JobParser
 
 func init() {
 	// This should prepare everything for thread looking for new files
-	parser = new(FileJobParser)
+	parser = new(JobParser)
 	parser.jobs = make(map[string]engine.Job)
 	parser.Observers = make(map[observer.Observer]struct{})
 	go startParserScan()
 }
 
-var parser *FileJobParser
-
 // GetParser Returns the an instance of a FileJobParser
-func GetParser() *FileJobParser {
+func GetParser() *JobParser {
 	return parser
 }
 
@@ -69,5 +60,15 @@ func startParserScan() {
 
 // parseJob Parses and creates a new job
 func parseJob(filename string) {
-
+	var newJob engine.Job
+	err := utils.GetJSONObjectFromFile(filename, &newJob)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	_, ok := parser.jobs[newJob.Name]
+	if !ok {
+		parser.jobs[newJob.Name] = newJob
+		parser.Notify(newJob)
+	}
 }

@@ -12,7 +12,7 @@ func (obs *MapPublisher) Deregister(o Observer) {
 	delete(obs.Observers, o)
 }
 
-func (obs *MapPublisher) Notify(e Event) {
+func (obs *MapPublisher) Notify(e interface{}) {
 	for o := range obs.Observers {
 		o.OnNotify(e)
 	}
