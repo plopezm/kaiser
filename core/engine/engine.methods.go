@@ -28,6 +28,6 @@ func (job *Job) Start() {
 // ExecuteScript Executes javascript code
 func executeScript(script string, args []JobArgs) ([]JobArgs, error) {
 	// Execute script
-	vm.Run(script)
-	return nil, nil
+	_, err := vm.Run(script)
+	return nil, err
 }
