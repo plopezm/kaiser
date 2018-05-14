@@ -1,6 +1,8 @@
 package engine
 
-import "github.com/robertkrimen/otto"
+import (
+	"github.com/robertkrimen/otto"
+)
 
 var vm *otto.Otto
 
@@ -10,22 +12,17 @@ func init() {
 
 // Start Resolves the next logic tree
 func (job *Job) Start() {
-	job.Current = job.Begin
-	job.next(job.Args)
-}
-
-// Next Resolves the next logic tree
-func (job *Job) next(args []JobArgs) {
-	if job.Current == nil {
-		return
+	var nextArgs []JobArgs
+	job.Current = job.Tasks[job.Entrypoint]
+	for job.Current != nil {
+		var err error
+		nextArgs, err = executeScript(job.Current.Script, nextArgs)
+		if err == nil {
+			job.Current = job.Tasks[job.Current.OnSuccess]
+		} else {
+			job.Current = job.Tasks[job.Current.OnFailure]
+		}
 	}
-	nextArgs, err := executeScript(job.Current.script, args)
-	if err == nil {
-		job.Current = job.Current.positive
-	} else {
-		job.Current = job.Current.negative
-	}
-	job.next(nextArgs)
 }
 
 // ExecuteScript Executes javascript code

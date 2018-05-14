@@ -2,11 +2,12 @@ package engine
 
 // Job Represents a binary tree
 type Job struct {
-	Version string    `json:"version"`
-	Name    string    `json:"name"`
-	Args    []JobArgs `json:"args"`
-	Begin   *JobTask  `json:"begin"`
-	Current *JobTask
+	Version    string              `json:"version"`
+	Name       string              `json:"name"`
+	Args       []JobArgs           `json:"args"`
+	Entrypoint string              `json:"start"`
+	Tasks      map[string]*JobTask `json:"tasks"`
+	Current    *JobTask
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -18,7 +19,7 @@ type JobArgs struct {
 
 // JobTask Represents a job task to be performed
 type JobTask struct {
-	script   string
-	positive *JobTask
-	negative *JobTask
+	Script    string `json:"script"`
+	OnSuccess string `json:"onSuccess"`
+	OnFailure string `json:"onFailure`
 }

@@ -46,7 +46,7 @@ func New() *JobEngine {
 func (engine *JobEngine) Start() {
 	for {
 		for _, job := range engine.jobs {
-			log.Println("[Engine] Executing job: ", job.Name)
+			log.Println("[Engine] Executing job:", job.Name)
 			job.Start()
 		}
 		time.Sleep(5000 * time.Millisecond)
