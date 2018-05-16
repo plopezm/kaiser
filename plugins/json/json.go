@@ -1,4 +1,4 @@
-package main
+package json
 
 import (
 	"encoding/json"
@@ -8,8 +8,8 @@ import (
 // KaiserExports Used by Kaiser, returns new functionality for Kaiser
 func KaiserExports() (functions map[string]interface{}) {
 	functions = make(map[string]interface{})
-	functions["stringify"] = Stringify
-	functions["parse"] = Parse
+	functions["JSON.stringify"] = Stringify
+	functions["JSON.parse"] = Parse
 	return functions
 }
 
@@ -22,12 +22,10 @@ func Stringify(object interface{}) string {
 	return string(bytes)
 }
 
-func Parse(jsonString string, object interface{}) {
+func Parse(jsonString string) (object interface{}) {
 	err := json.Unmarshal([]byte(jsonString), &object)
 	if err != nil {
 		fmt.Println(err)
 	}
-}
-
-func main() {
+	return object
 }

@@ -25,6 +25,12 @@ func New() *Interpreter {
 type Interpreter struct {
 }
 
+func (interpreter *Interpreter) RegisterPlugin(plugin map[string]interface{}) {
+	for key, function := range plugin {
+		vm.Set(key, function)
+	}
+}
+
 func (interpreter *Interpreter) ExecuteScript(script string, args []EngineModels.JobArgs) ([]EngineModels.JobArgs, error) {
 	// Execute script
 	for _, arg := range args {
