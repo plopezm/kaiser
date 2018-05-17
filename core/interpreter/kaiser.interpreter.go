@@ -7,35 +7,35 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-var vm *otto.Otto
 var once sync.Once
 var interpreter *Interpreter
 
 func init() {
-	vm = otto.New()
 }
 
 func New() *Interpreter {
 	once.Do(func() {
 		interpreter = new(Interpreter)
+		interpreter.VM = otto.New()
 	})
 	return interpreter
 }
 
 type Interpreter struct {
+	VM *otto.Otto
 }
 
 func (interpreter *Interpreter) RegisterPlugin(plugin map[string]interface{}) {
 	for key, function := range plugin {
-		vm.Set(key, function)
+		interpreter.VM.Set(key, function)
 	}
 }
 
 func (interpreter *Interpreter) ExecuteScript(script string, args []EngineModels.JobArgs) ([]EngineModels.JobArgs, error) {
 	// Execute script
 	for _, arg := range args {
-		vm.Set(arg.Name, arg.Value)
+		interpreter.VM.Set(arg.Name, arg.Value)
 	}
-	_, err := vm.Run(script)
+	_, err := interpreter.VM.Run(script)
 	return nil, err
 }

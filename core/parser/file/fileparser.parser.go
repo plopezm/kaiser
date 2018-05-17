@@ -39,6 +39,7 @@ func GetParser() *JobParser {
 	return parser
 }
 
+// StartParserScan Starts folder scan
 func startParserScan() {
 	for {
 		// log.Printf("[FileParser] Checking files in workspace \"%s\"\n", config.Configuration.Workspace)
@@ -64,6 +65,9 @@ func parseJob(filename string) {
 	err := utils.GetJSONObjectFromFile(filename, &newJob)
 	if err != nil {
 		log.Fatal(err)
+		return
+	}
+	if len(parser.Observers) == 0 {
 		return
 	}
 	_, ok := parser.jobs[newJob.Name]
