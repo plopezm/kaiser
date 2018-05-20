@@ -10,19 +10,7 @@ import (
 
 	"github.com/plopezm/kaiser/config"
 	"github.com/plopezm/kaiser/core/engine"
-	"github.com/plopezm/kaiser/utils/observer"
 )
-
-// JobParser Is a parser who gets the jobs from workspace
-type JobParser struct {
-	observer.MapPublisher
-	jobs map[string]engine.Job
-}
-
-// GetJobs Returns all registered jobs
-func (parser *JobParser) GetJobs() map[string]engine.Job {
-	return parser.jobs
-}
 
 var parser *JobParser
 
@@ -30,8 +18,19 @@ func init() {
 	// This should prepare everything for thread looking for new files
 	parser = new(JobParser)
 	parser.jobs = make(map[string]engine.Job)
-	parser.Observers = make(map[observer.Observer]struct{})
-	go startParserScan()
+	parser.Channel = make(chan engine.Job)
+	go startProvider()
+}
+
+// JobParser Is a parser who gets the jobs from workspace
+type JobParser struct {
+	Channel chan engine.Job
+	jobs    map[string]engine.Job
+}
+
+// GetJobs Returns all registered jobs
+func (parser *JobParser) GetJobs() map[string]engine.Job {
+	return parser.jobs
 }
 
 // GetParser Returns the an instance of a FileJobParser
@@ -40,15 +39,15 @@ func GetParser() *JobParser {
 }
 
 // StartParserScan Starts folder scan
-func startParserScan() {
+func startProvider() {
 	for {
 		parseFolder(config.Configuration.Workspace)
-		time.Sleep(5000 * time.Millisecond)
+		time.Sleep(2000 * time.Millisecond)
 	}
 }
 
+// parseFolder Scans the folders in the workspace
 func parseFolder(folderName string) {
-	time.Sleep(1000 * time.Millisecond)
 	files, err := ioutil.ReadDir(folderName)
 	if err != nil {
 		log.Fatal(err)
@@ -63,11 +62,12 @@ func parseFolder(folderName string) {
 	}
 }
 
+// isNotKaiserDir Returns true or false depending on the folder found (this is usefull for Kaiser reserved folders)
 func isNotKaiserDir(folderName string) bool {
 	return folderName != "disabled" && folderName != "plugins"
 }
 
-// parseJob Parses and creates a new job
+// parseJob Parses and creates a new job file
 func parseJob(folder string, filename string) {
 	var newJob engine.Job
 	err := utils.GetJSONObjectFromFile(folder+filename, &newJob)
@@ -75,13 +75,10 @@ func parseJob(folder string, filename string) {
 		log.Fatal(err)
 		return
 	}
-	if len(parser.Observers) == 0 {
-		return
-	}
 	_, ok := parser.jobs[newJob.Name]
 	if !ok {
 		newJob.Folder = folder
 		parser.jobs[newJob.Name] = newJob
-		parser.Notify(newJob)
+		parser.Channel <- newJob
 	}
 }
