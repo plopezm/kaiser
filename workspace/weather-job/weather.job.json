@@ -16,7 +16,7 @@
             "onFailure": "error"
         },
         "ok": {
-            "script": "console.log('weather obtained')"
+            "script": "logger.info('weather obtained: ', weather)"
         },
         "error": {
             "script": "console.log('Error getting weather')"

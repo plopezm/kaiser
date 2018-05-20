@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/plopezm/kaiser/core/engine"
-	"github.com/plopezm/kaiser/core/interpreter"
 	"github.com/plopezm/kaiser/core/parser"
 	"github.com/plopezm/kaiser/core/parser/file"
 )
@@ -29,9 +28,8 @@ func (obs ParserObserver) OnNotify(job interface{}) {
 
 // JobEngine Represents the state machine manager
 type JobEngine struct {
-	parser      parser.JobParser
-	jobs        []engine.Job
-	interpreter *interpreter.Interpreter
+	parser parser.JobParser
+	jobs   []engine.Job
 }
 
 // New Returns the singleton instance of JobEngine
@@ -41,7 +39,6 @@ func New() *JobEngine {
 		//TODO: This part should be implemented using a configuration variable
 		engineInstance.parser = file.GetParser()
 		engineInstance.parser.Register(&ParserObserver{})
-		engineInstance.interpreter = interpreter.New()
 	})
 	return engineInstance
 }
@@ -52,7 +49,7 @@ func (engine *JobEngine) Start() {
 		for i, job := range engine.jobs {
 			if job.IsReady() {
 				log.Println("[Engine] Executing job:", job.Name)
-				go engine.jobs[i].Start(engine.interpreter)
+				go engine.jobs[i].Start()
 			}
 		}
 		time.Sleep(5000 * time.Millisecond)

@@ -1,41 +1,25 @@
 package interpreter
 
 import (
-	"sync"
-
-	"github.com/plopezm/kaiser/core/engine/task"
+	httpPlugin "github.com/plopezm/kaiser/plugins/http"
+	logPlugin "github.com/plopezm/kaiser/plugins/logger"
 	"github.com/robertkrimen/otto"
 )
 
-var once sync.Once
-var interpreter *Interpreter
-
-func init() {
+func NewVM() *otto.Otto {
+	vm := otto.New()
+	return vm
 }
 
-func New() *Interpreter {
-	once.Do(func() {
-		interpreter = new(Interpreter)
-		interpreter.VM = otto.New()
-	})
-	return interpreter
+func NewVMWithPlugins() *otto.Otto {
+	vm := otto.New()
+	registerPlugin(vm, logPlugin.KaiserExports())
+	registerPlugin(vm, httpPlugin.KaiserExports())
+	return vm
 }
 
-type Interpreter struct {
-	VM *otto.Otto
-}
-
-func (interpreter *Interpreter) RegisterPlugin(plugin map[string]interface{}) {
+func registerPlugin(vm *otto.Otto, plugin map[string]interface{}) {
 	for key, function := range plugin {
-		interpreter.VM.Set(key, function)
+		vm.Set(key, function)
 	}
-}
-
-func (interpreter *Interpreter) ExecuteScript(script string, args []task.JobArgs) ([]task.JobArgs, error) {
-	// Execute script
-	for _, arg := range args {
-		interpreter.VM.Set(arg.Name, arg.Value)
-	}
-	_, err := interpreter.VM.Run(script)
-	return nil, err
 }
