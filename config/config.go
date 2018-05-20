@@ -20,6 +20,6 @@ func init() {
 }
 
 func createWorkspace() {
-	log.Println("Creating workspace if it does not exist in", Configuration.Workspace)
+	log.Println("[config.go] Creating workspace if it does not exist in", Configuration.Workspace)
 	os.Mkdir(Configuration.Workspace, 777)
 }
