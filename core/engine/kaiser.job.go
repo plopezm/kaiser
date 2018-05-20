@@ -51,6 +51,7 @@ func (job *Job) Start() {
 
 	job.VM = interpreter.NewVMWithPlugins()
 
+	job.setArguments(job.Args...)
 	job.current = job.Tasks[job.Entrypoint]
 	for job.current != nil {
 		var err error
@@ -63,12 +64,14 @@ func (job *Job) Start() {
 	}
 }
 
-// ExecuteTask Executes the current task
-func (job *Job) executeTask() error {
-	//TODO: Separate this in a args initializer and when a job is finished add exported vars in new args
+func (job *Job) setArguments(args ...JobArgs) {
 	for _, arg := range job.Args {
 		job.VM.Set(arg.Name, arg.Value)
 	}
+}
+
+// ExecuteTask Executes the current task
+func (job *Job) executeTask() error {
 	_, err := job.VM.Run(job.getScript())
 	return err
 }
@@ -86,5 +89,5 @@ func (job *Job) getScript() string {
 		}
 		return string(raw)
 	}
-	return "console.log('ERROR PARSING SCRIPT')"
+	return "console.log('[VM ERROR]: Error getScript(), maybe script and scriptFile are undefined')"
 }

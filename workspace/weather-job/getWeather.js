@@ -1,2 +1,4 @@
 var resp = http.get(url);
-logger.info("Received: ", resp.Body);
+if (!resp.Body) {
+    throw error(resp)
+}

@@ -16,10 +16,10 @@
             "onFailure": "error"
         },
         "ok": {
-            "script": "logger.info('weather obtained: ', weather)"
+            "script": "logger.info('weather obtained: ', resp.Body);"
         },
         "error": {
-            "script": "console.log('Error getting weather')"
+            "script": "logger.info('Error getting weather:', resp)"
         }
     }
 }
