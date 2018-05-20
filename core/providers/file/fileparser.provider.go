@@ -18,7 +18,7 @@ var parser *JobParser
 func init() {
 	// This should prepare everything for thread looking for new files
 	parser = new(JobParser)
-	parser.jobs = make(map[string][]byte)
+	parser.jobs = make(map[string]*JobData)
 	parser.Channel = make(chan engine.Job)
 	go startProvider()
 }
@@ -26,7 +26,7 @@ func init() {
 // JobParser Is a parser who gets the jobs from workspace
 type JobParser struct {
 	Channel chan engine.Job
-	jobs    map[string][]byte
+	jobs    map[string]*JobData
 }
 
 // GetParser Returns the an instance of a FileJobParser
@@ -34,11 +34,18 @@ func GetParser() *JobParser {
 	return parser
 }
 
+// JobData represents a Job
+type JobData struct {
+	hash   []byte
+	ticker *time.Ticker
+	job    *engine.Job
+}
+
 // StartParserScan Starts folder scan
 func startProvider() {
 	for {
 		parseFolder(config.Configuration.Workspace)
-		time.Sleep(2000 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 }
 
@@ -67,13 +74,33 @@ func parseJob(folder string, filename string) {
 	var newJob engine.Job
 	hash, err := utils.GetJSONObjectFromFileWithHash(folder+filename, &newJob)
 	if err != nil {
-		log.Fatal(err)
 		return
 	}
-	storedHash, ok := parser.jobs[newJob.Name]
-	if !ok || bytes.Compare(storedHash, hash) != 0 {
+
+	storedJob, ok := parser.jobs[newJob.Name]
+
+	// If the job has changed, the we should check it
+	if !ok || bytes.Compare(storedJob.hash, hash) != 0 {
 		newJob.Folder = folder
-		parser.jobs[newJob.Name] = hash
+
+		newJobData := &JobData{
+			hash: hash,
+			job:  &newJob,
+		}
+
+		if len(newJob.Duration) > 0 {
+			duration := utils.ParseDuration(newJob.Duration)
+			if duration > 0 {
+				newJobData.ticker = time.NewTicker(duration)
+				go func() {
+					for range newJobData.ticker.C {
+						parser.Channel <- *newJobData.job
+					}
+				}()
+			}
+		}
+
+		parser.jobs[newJob.Name] = newJobData
 		parser.Channel <- newJob
 	}
 }

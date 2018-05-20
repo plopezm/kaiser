@@ -14,7 +14,7 @@ func GetJSONObjectFromFile(filepath string, object interface{}) error {
 		log.Fatalln(err.Error())
 		return err
 	}
-	err = json.Unmarshal(raw, &object)
+	err = json.Unmarshal(raw, object)
 	return err
 }
 
@@ -25,7 +25,7 @@ func GetJSONObjectFromFileWithHash(filepath string, object interface{}) ([]byte,
 		log.Fatalln(err.Error())
 		return nil, err
 	}
-	err = json.Unmarshal(raw, &object)
+	err = json.Unmarshal(raw, object)
 
 	hasher := sha512.New()
 	hasher.Write(raw)

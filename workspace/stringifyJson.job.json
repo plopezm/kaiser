@@ -9,6 +9,7 @@
             }
         }
     ],
+    "duration": "PT5S",
     "start": "printHello",
     "tasks": {
         "printHello": {

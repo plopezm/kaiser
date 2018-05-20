@@ -14,11 +14,10 @@ type Job struct {
 	Version    string              `json:"version"`
 	Name       string              `json:"name"`
 	Args       []JobArgs           `json:"args"`
-	Repeatable bool                `json:"repeatable"`
+	Duration   string              `json:"duration"`
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	current    *JobTask
-	executed   bool
 	Folder     string
 	VM         *otto.Otto
 }
@@ -35,11 +34,6 @@ type JobTask struct {
 	ScriptFile *string `json:"scriptFile"`
 	OnSuccess  string  `json:"onSuccess"`
 	OnFailure  string  `json:"onFailure"`
-}
-
-// IsReady Returns true if a job is ready to be executed
-func (job *Job) IsReady() bool {
-	return (!job.Repeatable && !job.executed) || (job.Repeatable)
 }
 
 // Start Resolves the next logic tree
