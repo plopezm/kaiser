@@ -1,6 +1,7 @@
 package file
 
 import (
+	"bytes"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -17,7 +18,7 @@ var parser *JobParser
 func init() {
 	// This should prepare everything for thread looking for new files
 	parser = new(JobParser)
-	parser.jobs = make(map[string]engine.Job)
+	parser.jobs = make(map[string][]byte)
 	parser.Channel = make(chan engine.Job)
 	go startProvider()
 }
@@ -25,12 +26,7 @@ func init() {
 // JobParser Is a parser who gets the jobs from workspace
 type JobParser struct {
 	Channel chan engine.Job
-	jobs    map[string]engine.Job
-}
-
-// GetJobs Returns all registered jobs
-func (parser *JobParser) GetJobs() map[string]engine.Job {
-	return parser.jobs
+	jobs    map[string][]byte
 }
 
 // GetParser Returns the an instance of a FileJobParser
@@ -52,7 +48,6 @@ func parseFolder(folderName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("checking folder: ", folderName)
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
 			parseJob(folderName+"/", f.Name())
@@ -70,15 +65,15 @@ func isNotKaiserDir(folderName string) bool {
 // parseJob Parses and creates a new job file
 func parseJob(folder string, filename string) {
 	var newJob engine.Job
-	err := utils.GetJSONObjectFromFile(folder+filename, &newJob)
+	hash, err := utils.GetJSONObjectFromFileWithHash(folder+filename, &newJob)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	_, ok := parser.jobs[newJob.Name]
-	if !ok {
+	storedHash, ok := parser.jobs[newJob.Name]
+	if !ok || bytes.Compare(storedHash, hash) != 0 {
 		newJob.Folder = folder
-		parser.jobs[newJob.Name] = newJob
+		parser.jobs[newJob.Name] = hash
 		parser.Channel <- newJob
 	}
 }

@@ -44,11 +44,6 @@ func (job *Job) IsReady() bool {
 
 // Start Resolves the next logic tree
 func (job *Job) Start() {
-	if job.executed && !job.Repeatable {
-		return
-	}
-	job.executed = true
-
 	job.VM = interpreter.NewVMWithPlugins()
 
 	job.setArguments(job.Args...)

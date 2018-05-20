@@ -12,10 +12,6 @@ var (
 	engineInstance *JobEngine
 )
 
-// ParserObserver Type ParseObserver
-type ParserObserver struct {
-}
-
 // JobEngine Represents the state machine manager
 type JobEngine struct {
 	fileJobProvider *file.JobParser
