@@ -13,25 +13,25 @@ import (
 	"github.com/plopezm/kaiser/core/engine"
 )
 
-var parser *JobParser
+var parser *JobProvider
 
 func init() {
 	// This should prepare everything for thread looking for new files
-	parser = new(JobParser)
+	parser = new(JobProvider)
 	parser.jobs = make(map[string]*JobData)
 	parser.Channel = make(chan engine.Job)
 	go startProvider()
 }
 
-// JobParser Is a parser who gets the jobs from workspace
-type JobParser struct {
-	Channel chan engine.Job
-	jobs    map[string]*JobData
+// GetParser Returns the an instance of a FileJobParser
+func GetParser() *JobProvider {
+	return parser
 }
 
-// GetParser Returns the an instance of a FileJobParser
-func GetParser() *JobParser {
-	return parser
+// JobProvider Is a parser who gets the jobs from workspace
+type JobProvider struct {
+	Channel chan engine.Job
+	jobs    map[string]*JobData
 }
 
 // JobData represents a Job

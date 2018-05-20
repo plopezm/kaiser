@@ -38,6 +38,7 @@ type JobTask struct {
 
 // Start Resolves the next logic tree
 func (job *Job) Start() {
+	log.Println("[Engine] Running job: " + job.Name)
 	job.VM = interpreter.NewVMWithPlugins()
 
 	job.setArguments(job.Args...)

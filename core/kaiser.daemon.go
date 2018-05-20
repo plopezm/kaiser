@@ -14,7 +14,7 @@ var (
 
 // JobEngine Represents the state machine manager
 type JobEngine struct {
-	fileJobProvider *file.JobParser
+	fileJobProvider *file.JobProvider
 }
 
 // New Returns the singleton instance of JobEngine
