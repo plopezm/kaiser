@@ -49,9 +49,11 @@ func New() *JobEngine {
 // Start Starts engine logic
 func (engine *JobEngine) Start() {
 	for {
-		for _, job := range engine.jobs {
-			log.Println("[Engine] Executing job:", job.Name)
-			job.Start(engine.interpreter)
+		for i, job := range engine.jobs {
+			if job.IsReady() {
+				log.Println("[Engine] Executing job:", job.Name)
+				go engine.jobs[i].Start(engine.interpreter)
+			}
 		}
 		time.Sleep(5000 * time.Millisecond)
 	}

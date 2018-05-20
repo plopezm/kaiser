@@ -3,7 +3,7 @@ package interpreter
 import (
 	"sync"
 
-	EngineModels "github.com/plopezm/kaiser/core/engine/models"
+	"github.com/plopezm/kaiser/core/engine/task"
 	"github.com/robertkrimen/otto"
 )
 
@@ -31,7 +31,7 @@ func (interpreter *Interpreter) RegisterPlugin(plugin map[string]interface{}) {
 	}
 }
 
-func (interpreter *Interpreter) ExecuteScript(script string, args []EngineModels.JobArgs) ([]EngineModels.JobArgs, error) {
+func (interpreter *Interpreter) ExecuteScript(script string, args []task.JobArgs) ([]task.JobArgs, error) {
 	// Execute script
 	for _, arg := range args {
 		interpreter.VM.Set(arg.Name, arg.Value)

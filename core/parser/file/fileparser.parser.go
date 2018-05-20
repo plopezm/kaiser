@@ -42,27 +42,35 @@ func GetParser() *JobParser {
 // StartParserScan Starts folder scan
 func startParserScan() {
 	for {
-		// log.Printf("[FileParser] Checking files in workspace \"%s\"\n", config.Configuration.Workspace)
-		files, err := ioutil.ReadDir(config.Configuration.Workspace)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// log.Println("Files found: ")
-		for _, f := range files {
-			if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
-				// log.Println(f.Name())
-				parseJob(config.Configuration.Workspace + "/" + f.Name())
-			}
-		}
+		parseFolder(config.Configuration.Workspace)
 		time.Sleep(5000 * time.Millisecond)
 	}
 }
 
+func parseFolder(folderName string) {
+	time.Sleep(1000 * time.Millisecond)
+	files, err := ioutil.ReadDir(folderName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("checking folder: ", folderName)
+	for _, f := range files {
+		if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
+			parseJob(folderName+"/", f.Name())
+		} else if f.IsDir() && isNotKaiserDir(f.Name()) {
+			parseFolder(folderName + "/" + f.Name())
+		}
+	}
+}
+
+func isNotKaiserDir(folderName string) bool {
+	return folderName != "disabled" && folderName != "plugins"
+}
+
 // parseJob Parses and creates a new job
-func parseJob(filename string) {
+func parseJob(folder string, filename string) {
 	var newJob engine.Job
-	err := utils.GetJSONObjectFromFile(filename, &newJob)
+	err := utils.GetJSONObjectFromFile(folder+filename, &newJob)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -72,6 +80,7 @@ func parseJob(filename string) {
 	}
 	_, ok := parser.jobs[newJob.Name]
 	if !ok {
+		newJob.Folder = folder
 		parser.jobs[newJob.Name] = newJob
 		parser.Notify(newJob)
 	}
