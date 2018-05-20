@@ -34,6 +34,11 @@ type JobProvider struct {
 	jobs    map[string]*JobData
 }
 
+// GetJobs Returns all current jobs
+func (prov *JobProvider) GetJobs() map[string]*JobData {
+	return prov.jobs
+}
+
 // JobData represents a Job
 type JobData struct {
 	hash   []byte
