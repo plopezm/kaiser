@@ -16,10 +16,10 @@
             "onFailure": "error"
         },
         "ok": {
-            "script": "logger.info('weather in London: ', resp.Body);"
+            "script": "logger.info('weather in London: ' + resp.Body);"
         },
         "error": {
-            "script": "logger.info('Error getting weather:', resp)"
+            "script": "logger.info('Error getting weather:' + resp)"
         }
     }
 }

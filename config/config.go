@@ -17,6 +17,18 @@ func init() {
 		os.Exit(1)
 	}
 	createWorkspace()
+	configureLogger()
+}
+
+func configureLogger() {
+	f, err := os.OpenFile("logs/kaiser.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		os.Mkdir("logs", 777)
+		configureLogger()
+	}
+	log.SetOutput(f)
+	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime | log.LUTC)
+	log.Println("========= Starting Kaiser =========")
 }
 
 func createWorkspace() {

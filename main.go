@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/plopezm/kaiser/core"
+	"github.com/plopezm/kaiser/interfaces/cli"
 )
 
 func main() {
 	engine := core.New()
-	engine.Start()
+	go engine.Start()
+	cli.StartShell()
 }
