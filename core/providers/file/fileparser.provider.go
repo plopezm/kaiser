@@ -99,13 +99,13 @@ func parseJob(folder string, filename string) {
 			Done: make(chan bool),
 		}
 
-		checkPeriodicity(newJobMetadata)
+		applyPeriodicity(newJobMetadata)
 		provider.jobs[newJobMetadata.job.Name] = newJobMetadata
 		provider.Channel <- *newJobMetadata.job
 	}
 }
 
-func checkPeriodicity(newJobMetadata *JobMetadata) {
+func applyPeriodicity(newJobMetadata *JobMetadata) {
 	if len(newJobMetadata.job.Duration) > 0 {
 		duration := utils.ParseDuration(newJobMetadata.job.Duration)
 		if duration > 0 {
