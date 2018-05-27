@@ -18,7 +18,7 @@ var provider *JobProvider
 func init() {
 	// This should prepare everything for thread looking for new files
 	provider = new(JobProvider)
-	provider.jobs = make(map[string]*JobData)
+	provider.jobs = make(map[string]*JobMetadata)
 	provider.Channel = make(chan engine.Job)
 	go startProvider()
 }
@@ -31,19 +31,20 @@ func GetProvider() *JobProvider {
 // JobProvider Is a parser who gets the jobs from workspace
 type JobProvider struct {
 	Channel chan engine.Job
-	jobs    map[string]*JobData
+	jobs    map[string]*JobMetadata
 }
 
 // GetJobs Returns all current jobs
-func (prov *JobProvider) GetJobs() map[string]*JobData {
+func (prov *JobProvider) GetJobs() map[string]*JobMetadata {
 	return prov.jobs
 }
 
-// JobData represents a Job
-type JobData struct {
+// JobMetadata represents a Job
+type JobMetadata struct {
 	hash   []byte
 	ticker *time.Ticker
 	job    *engine.Job
+	Done   chan bool
 }
 
 // StartParserScan Starts folder scan
@@ -82,34 +83,41 @@ func parseJob(folder string, filename string) {
 		return
 	}
 
-	storedJob, ok := provider.jobs[newJob.Name]
+	storedJobMetadata, ok := provider.jobs[newJob.Name]
 
 	// If the job has changed, the we should check it
-	if !ok || bytes.Compare(storedJob.hash, hash) != 0 {
+	if !ok || bytes.Compare(storedJobMetadata.hash, hash) != 0 {
 		if ok {
-			storedJob.ticker.Stop()
+			storedJobMetadata.Done <- true
 		}
 
 		newJob.Folder = folder
 
-		newJobData := &JobData{
+		newJobMetadata := &JobMetadata{
 			hash: hash,
 			job:  &newJob,
+			Done: make(chan bool),
 		}
 
-		if len(newJob.Duration) > 0 {
+		if len(newJobMetadata.job.Duration) > 0 {
 			duration := utils.ParseDuration(newJob.Duration)
 			if duration > 0 {
-				newJobData.ticker = time.NewTicker(duration)
-				go func() {
-					for range newJobData.ticker.C {
-						provider.Channel <- *newJobData.job
+				newJobMetadata.ticker = time.NewTicker(duration)
+				go func(jobData *JobMetadata) {
+					for {
+						select {
+						case <-jobData.ticker.C:
+							provider.Channel <- *jobData.job
+						case <-jobData.Done:
+							jobData.ticker.Stop()
+							return
+						}
 					}
-				}()
+				}(newJobMetadata)
 			}
 		}
 
-		provider.jobs[newJob.Name] = newJobData
-		provider.Channel <- newJob
+		provider.jobs[newJobMetadata.job.Name] = newJobMetadata
+		provider.Channel <- *newJobMetadata.job
 	}
 }
