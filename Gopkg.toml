@@ -29,10 +29,6 @@
   branch = "master"
   name = "github.com/robertkrimen/otto"
 
-[[constraint]]
-  branch = "v2"
-  name = "gopkg.in/abiosoft/ishell.v2"
-
 [prune]
   go-tests = true
   unused-packages = true
