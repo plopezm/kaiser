@@ -13,19 +13,19 @@ import (
 	"github.com/plopezm/kaiser/core/engine"
 )
 
-var parser *JobProvider
+var provider *JobProvider
 
 func init() {
 	// This should prepare everything for thread looking for new files
-	parser = new(JobProvider)
-	parser.jobs = make(map[string]*JobData)
-	parser.Channel = make(chan engine.Job)
+	provider = new(JobProvider)
+	provider.jobs = make(map[string]*JobData)
+	provider.Channel = make(chan engine.Job)
 	go startProvider()
 }
 
-// GetParser Returns the an instance of a FileJobParser
-func GetParser() *JobProvider {
-	return parser
+// GetProvider Returns the an instance of a FileJobProvider
+func GetProvider() *JobProvider {
+	return provider
 }
 
 // JobProvider Is a parser who gets the jobs from workspace
@@ -82,10 +82,14 @@ func parseJob(folder string, filename string) {
 		return
 	}
 
-	storedJob, ok := parser.jobs[newJob.Name]
+	storedJob, ok := provider.jobs[newJob.Name]
 
 	// If the job has changed, the we should check it
 	if !ok || bytes.Compare(storedJob.hash, hash) != 0 {
+		if ok {
+			storedJob.ticker.Stop()
+		}
+
 		newJob.Folder = folder
 
 		newJobData := &JobData{
@@ -99,13 +103,13 @@ func parseJob(folder string, filename string) {
 				newJobData.ticker = time.NewTicker(duration)
 				go func() {
 					for range newJobData.ticker.C {
-						parser.Channel <- *newJobData.job
+						provider.Channel <- *newJobData.job
 					}
 				}()
 			}
 		}
 
-		parser.jobs[newJob.Name] = newJobData
-		parser.Channel <- newJob
+		provider.jobs[newJob.Name] = newJobData
+		provider.Channel <- newJob
 	}
 }

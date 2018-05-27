@@ -21,7 +21,7 @@ type JobEngine struct {
 func New() *JobEngine {
 	single.Do(func() {
 		engineInstance = new(JobEngine)
-		engineInstance.fileJobProvider = file.GetParser()
+		engineInstance.fileJobProvider = file.GetProvider()
 	})
 	return engineInstance
 }
