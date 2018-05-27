@@ -99,25 +99,30 @@ func parseJob(folder string, filename string) {
 			Done: make(chan bool),
 		}
 
-		if len(newJobMetadata.job.Duration) > 0 {
-			duration := utils.ParseDuration(newJob.Duration)
-			if duration > 0 {
-				newJobMetadata.ticker = time.NewTicker(duration)
-				go func(jobData *JobMetadata) {
-					for {
-						select {
-						case <-jobData.ticker.C:
-							provider.Channel <- *jobData.job
-						case <-jobData.Done:
-							jobData.ticker.Stop()
-							return
-						}
-					}
-				}(newJobMetadata)
-			}
-		}
-
+		checkPeriodicity(newJobMetadata)
 		provider.jobs[newJobMetadata.job.Name] = newJobMetadata
 		provider.Channel <- *newJobMetadata.job
+	}
+}
+
+func checkPeriodicity(newJobMetadata *JobMetadata) {
+	if len(newJobMetadata.job.Duration) > 0 {
+		duration := utils.ParseDuration(newJobMetadata.job.Duration)
+		if duration > 0 {
+			newJobMetadata.ticker = time.NewTicker(duration)
+			go periodHandler(newJobMetadata)
+		}
+	}
+}
+
+func periodHandler(jobData *JobMetadata) {
+	for {
+		select {
+		case <-jobData.ticker.C:
+			provider.Channel <- *jobData.job
+		case <-jobData.Done:
+			jobData.ticker.Stop()
+			return
+		}
 	}
 }
