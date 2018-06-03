@@ -1,34 +1,22 @@
 package cli
 
 import (
-	"fmt"
+	"time"
 
-	prompt "github.com/c-bata/go-prompt"
+	"github.com/plopezm/kaiser/core/provider"
 )
+
+var jobProvider *provider.JobProvider
 
 const (
-	JOBS_COMMANDS = "jobs"
+	JOB_LIST_COMMAND = "job list"
+	EXIT_COMMAND     = "exit"
 )
 
-func executor(in string) {
-	fmt.Println("Your input: " + in)
-	switch in {
-	case JOBS_COMMANDS:
-
-	}
-}
-
-func completer(in prompt.Document) []prompt.Suggest {
-	s := []prompt.Suggest{
-		{Text: "users", Description: "Store the username and age"},
-		{Text: "articles", Description: "Store the article text posted by user"},
-		{Text: "comments", Description: "Store the text commented to articles"},
-		{Text: "groups", Description: "Combine users with specific rules"},
-	}
-	return prompt.FilterHasPrefix(s, in.GetWordBeforeCursor(), true)
-}
-
+// StartUICli Starts CLI UI
 func StartUICli() {
-	p := prompt.New(executor, completer, prompt.OptionPrefix("Kaiser> "), prompt.OptionTitle("Kaiser"))
-	p.Run()
+	jobProvider = provider.GetProvider()
+	for {
+		time.Sleep(5000 * time.Millisecond)
+	}
 }

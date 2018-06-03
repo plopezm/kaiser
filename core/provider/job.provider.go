@@ -28,6 +28,15 @@ type JobProvider struct {
 	jobs    map[string]engine.Job
 }
 
+// GetJobs Returns the list of jobs registered
+func (provider *JobProvider) GetJobs() []engine.Job {
+	currentJobs := make([]engine.Job, 0)
+	for _, job := range provider.jobs {
+		currentJobs = append(currentJobs, job)
+	}
+	return currentJobs
+}
+
 // RegisterJobNotifier Create a new listener for other type of notifier
 func (provider *JobProvider) RegisterJobNotifier(channel chan engine.Job) {
 	go observeNotifier(channel)

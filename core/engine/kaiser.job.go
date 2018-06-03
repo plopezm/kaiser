@@ -19,12 +19,12 @@ type Job struct {
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	current    *JobTask
-	Folder     string
-	Hash       []byte
+	Folder     string `json:"-"`
+	Hash       []byte `json:"-"`
 	//OnStatusChange chan bool
-	OnDestroy chan bool
-	Ticker    *time.Ticker
-	VM        *otto.Otto
+	OnDestroy chan bool    `json:"-"`
+	Ticker    *time.Ticker `json:"-"`
+	VM        *otto.Otto   `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
