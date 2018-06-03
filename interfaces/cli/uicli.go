@@ -29,6 +29,6 @@ func completer(in prompt.Document) []prompt.Suggest {
 }
 
 func StartUICli() {
-	p := prompt.New(executor, completer, prompt.OptionPrefix("> "), prompt.OptionTitle("Kaiser"))
+	p := prompt.New(executor, completer, prompt.OptionPrefix("Kaiser> "), prompt.OptionTitle("Kaiser"))
 	p.Run()
 }

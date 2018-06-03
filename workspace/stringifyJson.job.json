@@ -5,11 +5,11 @@
         {
             "name": "me",
             "value": {
-                "name": "Pablo Lopez"
+                "name": "Pablo Lopez Martinez"
             }
         }
     ],
-    "duration": "PT5S",
+    "duration": "PT15S",
     "start": "printHello",
     "tasks": {
         "printHello": {

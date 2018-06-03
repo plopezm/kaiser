@@ -3,7 +3,8 @@ package core
 import (
 	"sync"
 
-	"github.com/plopezm/kaiser/core/providers/file"
+	"github.com/plopezm/kaiser/core/provider"
+	"github.com/plopezm/kaiser/core/provider/file"
 )
 
 var (
@@ -14,14 +15,15 @@ var (
 
 // JobEngine Represents the state machine manager
 type JobEngine struct {
-	fileJobProvider *file.JobProvider
+	provider *provider.JobProvider
 }
 
 // New Returns the singleton instance of JobEngine
 func New() *JobEngine {
 	single.Do(func() {
 		engineInstance = new(JobEngine)
-		engineInstance.fileJobProvider = file.GetProvider()
+		engineInstance.provider = provider.GetProvider()
+		engineInstance.provider.RegisterJobNotifier(file.Channel)
 	})
 	return engineInstance
 }
@@ -29,7 +31,7 @@ func New() *JobEngine {
 // Start Starts engine logic
 func (engine *JobEngine) Start() {
 	for {
-		job := <-engine.fileJobProvider.Channel
+		job := <-engine.provider.Channel
 		go job.Start()
 	}
 }

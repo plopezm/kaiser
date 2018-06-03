@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/plopezm/kaiser/core/interpreter"
 	"github.com/robertkrimen/otto"
@@ -19,7 +20,11 @@ type Job struct {
 	Tasks      map[string]*JobTask `json:"tasks"`
 	current    *JobTask
 	Folder     string
-	VM         *otto.Otto
+	Hash       []byte
+	//OnStatusChange chan bool
+	OnDestroy chan bool
+	Ticker    *time.Ticker
+	VM        *otto.Otto
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -38,7 +43,7 @@ type JobTask struct {
 
 // Start Resolves the next logic tree
 func (job *Job) Start() {
-	log.Println("[Engine] Running job: " + job.Name)
+	log.Println("Running job: " + job.Name)
 	job.VM = interpreter.NewVMWithPlugins()
 
 	job.setArguments(job.Args...)

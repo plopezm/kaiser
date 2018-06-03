@@ -16,8 +16,8 @@ func init() {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	createWorkspace()
 	configureLogger()
+	createWorkspace()
 }
 
 func configureLogger() {
@@ -32,6 +32,6 @@ func configureLogger() {
 }
 
 func createWorkspace() {
-	log.Println("[config.go] Creating workspace if it does not exist in", Configuration.Workspace)
+	log.Println("Creating workspace if it does not exist in", Configuration.Workspace)
 	os.Mkdir(Configuration.Workspace, 777)
 }
