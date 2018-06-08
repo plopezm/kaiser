@@ -1,4 +1,5 @@
 GOCMD=go
+GOINSTALL=$(GOCDM)
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
@@ -8,16 +9,16 @@ BUILD_DIR=dist
 BINARY_NAME=kaiser
 
 
-all: clean test build
+all: clean build
 build:
 	mkdir $(BUILD_DIR)
-	cp kaiser.config.json $(BUILD_DIR)
-	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) -v
+	cp kaiser.config.json ./dist
+	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/kaiserd 
 test:
-	$(GOTEST) -v
+	$(GOTEST) -v ./**/*_test.go
 clean:
 	$(GOCLEAN)
 	rm -fr $(BUILD_DIR)
 devrun:
-	$(GORUN) main.go
+	$(GORUN) cmd/kaiserd/main.go
 
