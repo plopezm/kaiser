@@ -2,6 +2,24 @@
 
 
 [[projects]]
+  name = "github.com/graphql-go/graphql"
+  packages = [
+    ".",
+    "gqlerrors",
+    "language/ast",
+    "language/kinds",
+    "language/lexer",
+    "language/location",
+    "language/parser",
+    "language/printer",
+    "language/source",
+    "language/typeInfo",
+    "language/visitor"
+  ]
+  revision = "1e23489041ba90a66f317fe0deccb236a2fff3cb"
+  version = "v0.7.5"
+
+[[projects]]
   branch = "master"
   name = "github.com/robertkrimen/otto"
   packages = [
@@ -27,6 +45,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0b1b42cbd67dd85325514042c7bb1df4e27e53e5b78c99d54ff1575520b15068"
+  inputs-digest = "87f95fabfe51a0d328ba0ed48d5bb690150c05ab052fda9bbc5e79f14fd4bc95"
   solver-name = "gps-cdcl"
   solver-version = 1
