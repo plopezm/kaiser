@@ -3,48 +3,25 @@
 
 [[projects]]
   name = "github.com/graphql-go/graphql"
-  packages = [
-    ".",
-    "gqlerrors",
-    "language/ast",
-    "language/kinds",
-    "language/lexer",
-    "language/location",
-    "language/parser",
-    "language/printer",
-    "language/source",
-    "language/typeInfo",
-    "language/visitor"
-  ]
+  packages = [".","gqlerrors","language/ast","language/kinds","language/lexer","language/location","language/parser","language/printer","language/source","language/typeInfo","language/visitor"]
   revision = "1e23489041ba90a66f317fe0deccb236a2fff3cb"
   version = "v0.7.5"
 
 [[projects]]
   branch = "master"
   name = "github.com/robertkrimen/otto"
-  packages = [
-    ".",
-    "ast",
-    "dbg",
-    "file",
-    "parser",
-    "registry",
-    "token"
-  ]
+  packages = [".","ast","dbg","file","parser","registry","token"]
   revision = "03d472dc43abece8691e609a23d295ab732abba6"
 
 [[projects]]
   name = "gopkg.in/sourcemap.v1"
-  packages = [
-    ".",
-    "base64vlq"
-  ]
+  packages = [".","base64vlq"]
   revision = "6e83acea0053641eff084973fee085f0c193c61a"
   version = "v1.0.5"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "87f95fabfe51a0d328ba0ed48d5bb690150c05ab052fda9bbc5e79f14fd4bc95"
+  inputs-digest = "2c22a93c7dafb3d7431b80fd6fb149aa2df581d9293e70de646e0672bf5afe6d"
   solver-name = "gps-cdcl"
   solver-version = 1

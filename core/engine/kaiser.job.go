@@ -18,13 +18,10 @@ type Job struct {
 	Duration   string              `json:"duration"`
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
-	current    *JobTask
-	Folder     string `json:"-"`
-	Hash       []byte `json:"-"`
-	//OnStatusChange chan bool
-	OnDestroy chan bool    `json:"-"`
-	Ticker    *time.Ticker `json:"-"`
-	VM        *otto.Otto   `json:"-"`
+	Folder     string              `json:"-"`
+	Hash       []byte              `json:"-"`
+	OnDestroy  chan bool           `json:"-"`
+	Ticker     *time.Ticker        `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -44,40 +41,35 @@ type JobTask struct {
 // Start Resolves the next logic tree
 func (job *Job) Start() {
 	log.Println("Running job: " + job.Name)
-	job.VM = interpreter.NewVMWithPlugins()
-
-	job.setArguments(job.Args...)
-	job.current = job.Tasks[job.Entrypoint]
-	for job.current != nil {
-		var err error
-		err = job.executeTask()
-		if err == nil {
-			job.current = job.Tasks[job.current.OnSuccess]
-		} else {
-			job.current = job.Tasks[job.current.OnFailure]
+	go func() {
+		vm := job.initializeVM()
+		currentJob := job.Tasks[job.Entrypoint]
+		for currentJob != nil {
+			_, err := vm.Run(job.getScript(currentJob))
+			if err == nil {
+				currentJob = job.Tasks[currentJob.OnSuccess]
+			} else {
+				currentJob = job.Tasks[currentJob.OnFailure]
+			}
 		}
-	}
+	}()
 }
 
-func (job *Job) setArguments(args ...JobArgs) {
+func (job *Job) initializeVM() *otto.Otto {
+	vm := interpreter.NewVMWithPlugins()
 	for _, arg := range job.Args {
-		job.VM.Set(arg.Name, arg.Value)
+		vm.Set(arg.Name, arg.Value)
 	}
-}
-
-// ExecuteTask Executes the current task
-func (job *Job) executeTask() error {
-	_, err := job.VM.Run(job.getScript())
-	return err
+	return vm
 }
 
 // GetScript Returns the script from inline declaration or from referenced declaration
-func (job *Job) getScript() string {
-	if job.current.Script != nil {
-		return *job.current.Script
+func (job *Job) getScript(current *JobTask) string {
+	if current.Script != nil {
+		return *current.Script
 	}
-	if job.current.ScriptFile != nil {
-		raw, err := ioutil.ReadFile(job.Folder + *job.current.ScriptFile)
+	if current.ScriptFile != nil {
+		raw, err := ioutil.ReadFile(job.Folder + *current.ScriptFile)
 		if err != nil {
 			log.Fatalln(err.Error())
 			os.Exit(1)
