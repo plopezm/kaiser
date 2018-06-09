@@ -1,0 +1,90 @@
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __schema {
+    types {
+      name
+    }
+  }
+}
+
+### Get job schema
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __type(name: "Job") {
+    name
+    fields {
+      name
+      type {
+        kind
+      }
+      description
+    }
+  }
+}
+
+### Get JobTask schema
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __type(name: "JobTask") {
+    name
+    fields {
+      name
+      type {
+        kind
+      }
+      description
+    }
+  }
+}
+
+### Getting job arguments schema
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __type(name: "jobArgs") {
+    name
+    fields {
+      name
+      type {
+        kind
+      }
+      description
+    }
+  }
+}
+
+
+### Get Jobs
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+    jobs {
+        name
+        args {
+            name
+            value
+        }
+        duration
+        entrypoint
+        tasks {
+            script
+            scriptFile
+            onSuccess
+            onFailure
+        }
+        status
+    }
+}
+
