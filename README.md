@@ -6,10 +6,10 @@ The idea is to create a job executer that can be modified or updated using a res
 
 # To be implemented
 
-- [ ] [Job management] Rest API for creating, executing, removing tasks remotely.
+- [ ] [Job management] GraphQL API for creating, executing, removing tasks remotely.
 - [x] [Job scheduling] Scheduling jobs using ISO 8601 Duration
 - [ ] [Command interface] A commandline interface to manage kaiser 
-- [ ] [Web interface] A web interface to manage kaiser
+- [ ] [Web interface] A web interface to manage kaiser 
 - [ ] [Plugins] More plugins
 
 # What is implemented

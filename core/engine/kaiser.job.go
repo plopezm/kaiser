@@ -55,10 +55,15 @@ func (job *Job) Start() {
 	}()
 }
 
+// initializeVM Creates a new VM with plugins and the current context.
+// Every job executed will have its own context, args and plugins.
+// By default all plugins are set in the VM.
 func (job *Job) initializeVM() *otto.Otto {
-	vm := interpreter.NewVMWithPlugins(map[string]interface{}{
+	context := map[string]interface{}{
 		"processName": job.Name,
-	})
+	}
+	vm := interpreter.NewVMWithPlugins(context)
+	// Setting job arguments in VM
 	for _, arg := range job.Args {
 		vm.Set(arg.Name, arg.Value)
 	}
