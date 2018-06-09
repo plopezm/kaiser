@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	graphqlgo "github.com/graphql-go/graphql"
-	"github.com/plopezm/kaiser/core/engine"
+	"github.com/plopezm/kaiser/core"
 )
 
 var (
@@ -54,12 +54,12 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					var inp = p.Args["input"].(map[string]interface{})
 
-					newJob := engine.Job{
+					newJob := core.Job{
 						Name:       inp["name"].(string),
-						Args:       inp["args"].([]engine.JobArgs),
+						Args:       inp["args"].([]core.JobArgs),
 						Entrypoint: inp["entrypoint"].(string),
 						Duration:   inp["duration"].(string),
-						Tasks:      inp["tasks"].(map[string]*engine.JobTask),
+						Tasks:      inp["tasks"].(map[string]*core.JobTask),
 					}
 					fmt.Println(newJob)
 					return newJob, nil
