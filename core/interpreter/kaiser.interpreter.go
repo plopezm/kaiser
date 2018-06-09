@@ -6,15 +6,12 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-func NewVM() *otto.Otto {
+// NewVMWithPlugins Creates a new VM instance using plugins.
+// @Param context map[string]interface{} Contains information about the process who creates this VM
+func NewVMWithPlugins(context map[string]interface{}) *otto.Otto {
 	vm := otto.New()
-	return vm
-}
-
-func NewVMWithPlugins() *otto.Otto {
-	vm := otto.New()
-	registerPlugin(vm, logPlugin.KaiserExports())
-	registerPlugin(vm, httpPlugin.KaiserExports())
+	registerPlugin(vm, logPlugin.New(context).GetFunctions())
+	registerPlugin(vm, httpPlugin.New())
 	return vm
 }
 

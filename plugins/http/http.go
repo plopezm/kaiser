@@ -8,8 +8,8 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-// KaiserExports Used by Kaiser, returns new functionality for Kaiser
-func KaiserExports() (functions map[string]interface{}) {
+// New Used by Kaiser, returns new functionality for Kaiser
+func New() (functions map[string]interface{}) {
 	functions = make(map[string]interface{})
 	functions["http"] = map[string]interface{}{
 		"get": Get,

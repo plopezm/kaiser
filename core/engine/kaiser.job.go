@@ -56,7 +56,9 @@ func (job *Job) Start() {
 }
 
 func (job *Job) initializeVM() *otto.Otto {
-	vm := interpreter.NewVMWithPlugins()
+	vm := interpreter.NewVMWithPlugins(map[string]interface{}{
+		"processName": job.Name,
+	})
 	for _, arg := range job.Args {
 		vm.Set(arg.Name, arg.Value)
 	}
