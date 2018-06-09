@@ -5,17 +5,9 @@ import (
 	gohttp "net/http"
 	"time"
 
+	"github.com/plopezm/kaiser/plugins"
 	"github.com/robertkrimen/otto"
 )
-
-// KaiserExports Used by Kaiser, returns new functionality for Kaiser
-func KaiserExports() (functions map[string]interface{}) {
-	functions = make(map[string]interface{})
-	functions["http"] = map[string]interface{}{
-		"get": Get,
-	}
-	return functions
-}
 
 var netClient = &gohttp.Client{
 	Timeout: time.Second * 10,
@@ -28,8 +20,28 @@ type Response struct {
 	Headers    map[string][]string
 }
 
+type HttpPlugin struct {
+	context map[string]interface{}
+}
+
+// New Used by Kaiser, returns new functionality for Kaiser
+func New(context map[string]interface{}) plugins.KaiserPlugin {
+	plugin := new(HttpPlugin)
+	plugin.context = context
+	return plugin
+}
+
+// GetFunctions returns the functions to be registered in the VM
+func (plugin *HttpPlugin) GetFunctions() map[string]interface{} {
+	functions := make(map[string]interface{})
+	functions["http"] = map[string]interface{}{
+		"get": plugin.Get,
+	}
+	return functions
+}
+
 // Get Performs an http get request
-func Get(call otto.FunctionCall) otto.Value {
+func (plugin *HttpPlugin) Get(call otto.FunctionCall) otto.Value {
 	url, err := call.Argument(0).ToString()
 	resp, err := netClient.Get(url)
 	if err != nil {
