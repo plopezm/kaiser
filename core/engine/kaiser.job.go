@@ -12,16 +12,17 @@ import (
 
 // Job Represents executable job
 type Job struct {
-	Version    string              `json:"version"`
-	Name       string              `json:"name"`
-	Args       []JobArgs           `json:"args"`
-	Duration   string              `json:"duration"`
-	Entrypoint string              `json:"start"`
-	Tasks      map[string]*JobTask `json:"tasks"`
-	Folder     string              `json:"-"`
-	Hash       []byte              `json:"-"`
-	OnDestroy  chan bool           `json:"-"`
-	Ticker     *time.Ticker        `json:"-"`
+	Version    string                 `json:"version"`
+	Name       string                 `json:"name"`
+	Args       []JobArgs              `json:"args"`
+	Duration   string                 `json:"duration"`
+	Entrypoint string                 `json:"start"`
+	Tasks      map[string]*JobTask    `json:"tasks"`
+	Folder     string                 `json:"-"`
+	Hash       []byte                 `json:"-"`
+	OnDestroy  chan bool              `json:"-"`
+	Ticker     *time.Ticker           `json:"-"`
+	Instances  map[string]JobInstance `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -38,8 +39,19 @@ type JobTask struct {
 	OnFailure  string  `json:"onFailure"`
 }
 
-// Start Resolves the next logic tree
-func (job *Job) Start() {
+type JobInstance struct {
+	status JobInstanceStatus
+}
+
+type JobInstanceStatus int
+
+const (
+	STOPPED JobInstanceStatus = 0
+	RUNNING JobInstanceStatus = 1
+)
+
+// StartNewInstance Resolves the next logic tree
+func (job *Job) StartNewInstance() {
 	log.Println("Running job: " + job.Name)
 	go func() {
 		vm := job.initializeVM()
@@ -60,7 +72,7 @@ func (job *Job) Start() {
 // By default all plugins are set in the VM.
 func (job *Job) initializeVM() *otto.Otto {
 	context := map[string]interface{}{
-		"processName": job.Name,
+		"jobName": job.Name,
 	}
 	vm := interpreter.NewVMWithPlugins(context)
 	// Setting job arguments in VM

@@ -32,6 +32,6 @@ func New() *JobEngine {
 func (engine *JobEngine) Start() {
 	for {
 		job := <-engine.provider.Channel
-		job.Start()
+		job.StartNewInstance()
 	}
 }

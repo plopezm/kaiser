@@ -3,10 +3,12 @@ package logger
 import (
 	"log"
 	"os"
+
+	"github.com/plopezm/kaiser/plugins"
 )
 
 // New Creates a new instance of Logger plugin
-func New(context map[string]interface{}) *LogPlugin {
+func New(context map[string]interface{}) plugins.KaiserPlugin {
 	plugin := new(LogPlugin)
 	plugin.context = context
 	return plugin
@@ -28,7 +30,7 @@ func (plugin *LogPlugin) GetFunctions() map[string]interface{} {
 
 // Info Prints objects or strings sent as parameters
 func (plugin *LogPlugin) Info(args ...interface{}) {
-	f, err := os.OpenFile("logs/"+plugin.context["processName"].(string)+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("logs/"+plugin.context["jobName"].(string)+".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Error creating file logs/" + plugin.context["processName"].(string) + ".log")
 		return
