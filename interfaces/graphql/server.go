@@ -22,12 +22,12 @@ func graphQLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := r.Body.Close(); err != nil {
 		log.Fatalln("Error GraphQLHandler", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	params := graphql.Params{Schema: JobSchema, RequestString: string(body)}
 	result := graphql.Do(params)
 	json.NewEncoder(w).Encode(result)
-	w.WriteHeader(http.StatusOK)
 }
 
 // StartServer Starts graphql api on selected port
