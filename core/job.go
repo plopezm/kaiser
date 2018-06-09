@@ -6,23 +6,24 @@ import (
 	"os"
 	"time"
 
+	"github.com/plopezm/kaiser/core/context"
 	"github.com/plopezm/kaiser/core/interpreter"
 	"github.com/robertkrimen/otto"
 )
 
 // Job Represents executable job
 type Job struct {
-	Version    string                 `json:"version"`
-	Name       string                 `json:"name"`
-	Args       []JobArgs              `json:"args"`
-	Duration   string                 `json:"duration"`
-	Entrypoint string                 `json:"start"`
-	Tasks      map[string]*JobTask    `json:"tasks"`
-	Folder     string                 `json:"-"`
-	Hash       []byte                 `json:"-"`
-	OnDestroy  chan bool              `json:"-"`
-	Ticker     *time.Ticker           `json:"-"`
-	Instances  map[string]JobInstance `json:"-"`
+	Version    string              `json:"version"`
+	Name       string              `json:"name"`
+	Args       []JobArgs           `json:"args"`
+	Duration   string              `json:"duration"`
+	Entrypoint string              `json:"start"`
+	Tasks      map[string]*JobTask `json:"tasks"`
+	Status     JobStatus           `json:"status"`
+	Folder     string              `json:"-"`
+	Hash       []byte              `json:"-"`
+	OnDestroy  chan bool           `json:"-"`
+	Ticker     *time.Ticker        `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -39,20 +40,10 @@ type JobTask struct {
 	OnFailure  string  `json:"onFailure"`
 }
 
-type JobInstance struct {
-	status JobInstanceStatus
-}
-
-type JobInstanceStatus int
-
-const (
-	STOPPED JobInstanceStatus = 0
-	RUNNING JobInstanceStatus = 1
-)
-
 // StartNewInstance Resolves the next logic tree
 func (job *Job) StartNewInstance() {
 	log.Println("Running job: " + job.Name)
+	job.Status = RUNNING
 	go func() {
 		vm := job.initializeVM()
 		currentJob := job.Tasks[job.Entrypoint]
@@ -64,6 +55,7 @@ func (job *Job) StartNewInstance() {
 				currentJob = job.Tasks[currentJob.OnFailure]
 			}
 		}
+		job.Status = STOPPED
 	}()
 }
 
@@ -71,8 +63,8 @@ func (job *Job) StartNewInstance() {
 // Every job executed will have its own context, args and plugins.
 // By default all plugins are set in the VM.
 func (job *Job) initializeVM() *otto.Otto {
-	context := map[string]interface{}{
-		"jobName": job.Name,
+	context := &context.JobInstanceContext{
+		JobName: job.Name,
 	}
 	vm := interpreter.NewVMWithPlugins(context)
 	// Setting job arguments in VM

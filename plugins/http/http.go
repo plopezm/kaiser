@@ -5,6 +5,7 @@ import (
 	gohttp "net/http"
 	"time"
 
+	"github.com/plopezm/kaiser/core/context"
 	"github.com/plopezm/kaiser/plugins"
 	"github.com/robertkrimen/otto"
 )
@@ -21,11 +22,11 @@ type Response struct {
 }
 
 type HttpPlugin struct {
-	context map[string]interface{}
+	context context.JobContext
 }
 
 // New Used by Kaiser, returns new functionality for Kaiser
-func New(context map[string]interface{}) plugins.KaiserPlugin {
+func New(context context.JobContext) plugins.KaiserPlugin {
 	plugin := new(HttpPlugin)
 	plugin.context = context
 	return plugin

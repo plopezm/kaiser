@@ -149,6 +149,16 @@ var (
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
+			"status": &graphqlgo.Field{
+				Type:        graphqlgo.Int,
+				Description: "Current status of the job",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if job, ok := p.Source.(core.Job); ok {
+						return job.Status, nil
+					}
+					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
+				},
+			},
 		},
 	})
 )
