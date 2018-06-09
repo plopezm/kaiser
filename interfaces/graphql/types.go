@@ -8,6 +8,19 @@ import (
 )
 
 var (
+	jobStatusType = graphqlgo.NewEnum(graphqlgo.EnumConfig{
+		Name:        "JobStatus",
+		Description: "Status of the current job",
+		Values: graphqlgo.EnumValueConfigMap{
+			"STOPPED": &graphqlgo.EnumValueConfig{
+				Value: core.STOPPED,
+			},
+			"RUNNING": &graphqlgo.EnumValueConfig{
+				Value: core.RUNNING,
+			},
+		},
+	})
+
 	jobArgsType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 		Name:        "jobArgs",
 		Description: "Input arguments for all job tasks",
@@ -150,7 +163,7 @@ var (
 				},
 			},
 			"status": &graphqlgo.Field{
-				Type:        graphqlgo.Int,
+				Type:        graphqlgo.NewNonNull(jobStatusType),
 				Description: "Current status of the job",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(core.Job); ok {
