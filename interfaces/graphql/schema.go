@@ -18,6 +18,6 @@ var queryType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 })
 
 var JobSchema, _ = graphqlgo.NewSchema(graphqlgo.SchemaConfig{
-	Query: queryType,
-	// mutation will be added later
+	Query:    queryType,
+	Mutation: mutationType,
 })

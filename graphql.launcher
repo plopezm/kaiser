@@ -1,3 +1,6 @@
+
+### Get types names from schema
+
 POST http://localhost:8080/api/graphql HTTP/1.1
 content-type: application/json
 
@@ -5,6 +8,25 @@ query {
   __schema {
     types {
       name
+      fields {
+        name
+        description
+        type { 
+          name
+          kind
+        }
+        args { 
+          name
+          type { 
+            name
+            kind 
+            ofType { 
+              name
+              kind
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -16,14 +38,26 @@ content-type: application/json
 
 query {
   __type(name: "Job") {
-    name
-    fields {
       name
-      type {
-        kind
+      fields {
+        name
+        description
+        type { 
+          name
+          kind
+        }
+        args { 
+          name
+          type { 
+            name
+            kind 
+            ofType { 
+              name
+              kind
+            }
+          }
+        }
       }
-      description
-    }
   }
 }
 
@@ -88,3 +122,36 @@ query {
     }
 }
 
+
+### Get Mutations schema
+
+
+### Get job schema
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __type(name: "createJob") {
+      name
+      fields {
+        name
+        description
+        type { 
+          name
+          kind
+        }
+        args { 
+          name
+          type { 
+            name
+            kind 
+            ofType { 
+              name
+              kind
+            }
+          }
+        }
+      }
+  }
+}

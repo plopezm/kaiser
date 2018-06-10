@@ -9,7 +9,7 @@ import (
 
 var (
 	createJobType = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
-		Name: "CreateJob",
+		Name: "createJob",
 		Fields: graphqlgo.InputObjectConfigFieldMap{
 			"version": &graphqlgo.InputObjectFieldConfig{
 				Type:         graphqlgo.String,
