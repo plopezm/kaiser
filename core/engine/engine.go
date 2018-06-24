@@ -5,6 +5,7 @@ import (
 
 	"github.com/plopezm/kaiser/core/provider"
 	"github.com/plopezm/kaiser/core/provider/file"
+	"github.com/plopezm/kaiser/core/provider/interfaces"
 )
 
 var (
@@ -24,6 +25,7 @@ func New() *JobEngine {
 		engineInstance = new(JobEngine)
 		engineInstance.provider = provider.GetProvider()
 		engineInstance.provider.RegisterJobNotifier(file.Channel)
+		engineInstance.provider.RegisterJobNotifier(interfaces.Channel)
 	})
 	return engineInstance
 }

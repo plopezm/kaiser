@@ -3,6 +3,7 @@ package graphql
 import (
 	graphqlgo "github.com/graphql-go/graphql"
 	"github.com/plopezm/kaiser/core"
+	"github.com/plopezm/kaiser/core/provider/interfaces"
 )
 
 var (
@@ -111,6 +112,8 @@ var (
 							OnFailure: jobTask.(map[string]interface{})["onFailure"].(string),
 						}
 					}
+
+					interfaces.NotifyJob(&newJob)
 					return newJob, nil
 				},
 			},
