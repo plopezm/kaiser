@@ -47,3 +47,8 @@ The workspace folder has some rules:
 
 - Folder "disabled" is used to ignore jobs putting them there.
 - Every job file has special names, *.job.json
+
+
+# Examples
+
+The file graphql.http contains some examples to use with the current API.
