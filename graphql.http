@@ -155,3 +155,33 @@ query {
       }
   }
 }
+
+
+### Creating new job example request
+
+POST http://localhost:8080/api/graphql HTTP/1.1
+content-type: application/json
+
+mutation {
+  createJobType(input: {
+    name: "example",
+    args: [{name: "hello", value: "world"}, {name: "hello1", value: "world1"}],
+    duration: "PT15S",
+    entrypoint: "FirstTask",
+    tasks: [
+		{
+			name: "FirstTask",
+			script: "logger.info('helloworld')",
+			onSuccess: "",
+			onFailure: ""
+		}
+	]
+  }) {
+    name
+    args {
+    	name
+    	value
+    }
+  }
+}
+
