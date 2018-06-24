@@ -1,13 +1,47 @@
 package graphql
 
 import (
-	"fmt"
-
 	graphqlgo "github.com/graphql-go/graphql"
 	"github.com/plopezm/kaiser/core"
 )
 
 var (
+	jobArgTypeInput = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
+		Name: "jobArgTypeInput",
+		Fields: graphqlgo.InputObjectConfigFieldMap{
+			"name": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Argument name",
+			},
+			"value": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Argument value",
+			},
+		},
+	})
+
+	jobTaskTypeInput = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
+		Name: "jobTaskTypeInput",
+		Fields: graphqlgo.InputObjectConfigFieldMap{
+			"name": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Task name",
+			},
+			"script": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "script to execute",
+			},
+			"onSuccess": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "task name to execute if success",
+			},
+			"onFailure": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "task name to execute if failure",
+			},
+		},
+	})
+
 	createJobType = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
 		Name: "createJob",
 		Fields: graphqlgo.InputObjectConfigFieldMap{
@@ -21,7 +55,7 @@ var (
 				Description: "Job name",
 			},
 			"args": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewNonNull(graphqlgo.Int),
+				Type:        graphqlgo.NewList(jobArgTypeInput),
 				Description: "Initial arguments of the job used in script",
 			},
 			"duration": &graphqlgo.InputObjectFieldConfig{
@@ -33,8 +67,8 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The first task to be executed",
 			},
-			"task": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewNonNull(graphqlgo.NewList(jobTaskType)),
+			"tasks": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.NewList(jobTaskTypeInput)),
 				Description: "A list of tasks to perform in this job",
 			},
 		},
@@ -56,12 +90,27 @@ var (
 
 					newJob := core.Job{
 						Name:       inp["name"].(string),
-						Args:       inp["args"].([]core.JobArgs),
 						Entrypoint: inp["entrypoint"].(string),
 						Duration:   inp["duration"].(string),
-						Tasks:      inp["tasks"].(map[string]*core.JobTask),
 					}
-					fmt.Println(newJob)
+
+					newJob.Args = make([]core.JobArgs, len(inp["args"].([]interface{})))
+					for index, jobArg := range inp["args"].([]interface{}) {
+						newJob.Args[index] = core.JobArgs{
+							Name:  jobArg.(map[string]interface{})["name"].(string),
+							Value: jobArg.(map[string]interface{})["value"].(string),
+						}
+					}
+
+					newJob.Tasks = make(map[string]*core.JobTask)
+					for _, jobTask := range inp["tasks"].([]interface{}) {
+						scriptString := jobTask.(map[string]interface{})["script"].(string)
+						newJob.Tasks[jobTask.(map[string]interface{})["name"].(string)] = &core.JobTask{
+							Script:    &scriptString,
+							OnSuccess: jobTask.(map[string]interface{})["onSuccess"].(string),
+							OnFailure: jobTask.(map[string]interface{})["onFailure"].(string),
+						}
+					}
 					return newJob, nil
 				},
 			},
