@@ -165,13 +165,13 @@ content-type: application/json
 mutation {
   createJobType(input: {
     name: "example",
-    args: [{name: "hello", value: "world"}, {name: "hello1", value: "world1"}],
+    args: [{name: "hello", value: "hello"}, {name: "world", value: "world"}],
     duration: "PT15S",
     entrypoint: "FirstTask",
     tasks: [
 		{
 			name: "FirstTask",
-			script: "logger.info('helloworld')",
+			script: "logger.info(hello + ' ' + world);",
 			onSuccess: "",
 			onFailure: ""
 		}
