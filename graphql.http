@@ -106,18 +106,6 @@ content-type: application/json
 query {
     jobs {
         name
-        args {
-            name
-            value
-        }
-        duration
-        entrypoint
-        tasks {
-            script
-            scriptFile
-            onSuccess
-            onFailure
-        }
         status
     }
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/plopezm/kaiser/plugins"
 	httpPlugin "github.com/plopezm/kaiser/plugins/http"
 	logPlugin "github.com/plopezm/kaiser/plugins/logger"
+	systemPlugin "github.com/plopezm/kaiser/plugins/system"
 	"github.com/robertkrimen/otto"
 )
 
@@ -14,6 +15,7 @@ func NewVMWithPlugins(context context.JobContext) *otto.Otto {
 	vm := otto.New()
 	registerPlugin(vm, logPlugin.New(context))
 	registerPlugin(vm, httpPlugin.New(context))
+	registerPlugin(vm, systemPlugin.New(context))
 	return vm
 }
 

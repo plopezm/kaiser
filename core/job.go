@@ -4,12 +4,19 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/plopezm/kaiser/core/context"
 	"github.com/plopezm/kaiser/core/interpreter"
 	"github.com/robertkrimen/otto"
 )
+
+// InitializeJob Initializes internal attributes of a Job
+func InitializeJob(job *Job) {
+	job.Status = STOPPED
+	job.Sync = &sync.Mutex{}
+}
 
 // Job Represents executable job
 type Job struct {
@@ -22,6 +29,7 @@ type Job struct {
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
 	Status    JobStatus    `json:"status"`
+	Sync      *sync.Mutex  `json:"-"`
 	Folder    string       `json:"-"`
 	Hash      []byte       `json:"-"`
 	OnDestroy chan bool    `json:"-"`
@@ -42,23 +50,44 @@ type JobTask struct {
 	OnFailure  string  `json:"onFailure"`
 }
 
-// StartNewInstance Resolves the next logic tree
-func (job *Job) StartNewInstance() {
-	log.Println("Running job: " + job.Name)
+// Start Resolves the logic tree
+func (job *Job) Start() {
 	job.Status = RUNNING
-	go func() {
-		vm := job.initializeVM()
-		currentJob := job.Tasks[job.Entrypoint]
-		for currentJob != nil {
-			_, err := vm.Run(job.getScript(currentJob))
-			if err == nil {
-				currentJob = job.Tasks[currentJob.OnSuccess]
-			} else {
-				currentJob = job.Tasks[currentJob.OnFailure]
-			}
+	vm := job.initializeVM()
+	currentJob := job.Tasks[job.Entrypoint]
+	for currentJob != nil {
+		switch job.Status {
+		case STOPPED:
+			return
+		case PAUSED:
+			job.Sync.Lock()
+		default:
 		}
-		job.Status = STOPPED
-	}()
+		_, err := vm.Run(job.getScript(currentJob))
+		if err == nil {
+			currentJob = job.Tasks[currentJob.OnSuccess]
+		} else {
+			currentJob = job.Tasks[currentJob.OnFailure]
+		}
+	}
+	job.Status = STOPPED
+}
+
+// Stop Stop job execution
+func (job *Job) Stop() {
+	job.Status = STOPPED
+}
+
+// Pause pauses the process
+func (job *Job) Pause() {
+	job.Sync.Lock()
+	job.Status = PAUSED
+}
+
+// Resume unpauses the process
+func (job *Job) Resume() {
+	job.Status = RUNNING
+	job.Sync.Unlock()
 }
 
 // initializeVM Creates a new VM with plugins and the current context.

@@ -7,14 +7,23 @@
             "value": {
                 "name": "Pablo Lopez Martinez"
             }
+        },
+        {
+            "name": "timeToWait",
+            "value": 10
         }
     ],
-    "duration": "PT15S",
+    "duration": "PT30S",
     "start": "printHello",
     "tasks": {
         "printHello": {
             "script": "logger.info('Hello me '+ me);logger.info('Hello stringify ' + JSON.stringify(me));",
-            "onSuccess": "sayGoodbye",
+            "onSuccess": "looseTime",
+            "onFailure": "sayError"
+        },
+        "looseTime": {
+            "script": "logger.info('going to sleep '+timeToWait+' seconds');system.sleep(10, 'S');logger.info('Wake up');",
+            "onSucess": "sayGoodbye",
             "onFailure": "sayError"
         },
         "sayGoodbye": {
