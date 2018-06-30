@@ -13,17 +13,19 @@ import (
 
 // Job Represents executable job
 type Job struct {
+	// External attributes
 	Version    string              `json:"version"`
 	Name       string              `json:"name"`
 	Args       []JobArgs           `json:"args"`
 	Duration   string              `json:"duration"`
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
-	Status     JobStatus           `json:"status"`
-	Folder     string              `json:"-"`
-	Hash       []byte              `json:"-"`
-	OnDestroy  chan bool           `json:"-"`
-	Ticker     *time.Ticker        `json:"-"`
+	// Internal attributes
+	Status    JobStatus    `json:"status"`
+	Folder    string       `json:"-"`
+	Hash      []byte       `json:"-"`
+	OnDestroy chan bool    `json:"-"`
+	Ticker    *time.Ticker `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
