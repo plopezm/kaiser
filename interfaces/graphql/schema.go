@@ -2,7 +2,7 @@ package graphql
 
 import (
 	graphqlgo "github.com/graphql-go/graphql"
-	"github.com/plopezm/kaiser/core/provider"
+	"github.com/plopezm/kaiser/core/engine"
 )
 
 var queryType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
@@ -11,7 +11,7 @@ var queryType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 		"jobs": &graphqlgo.Field{
 			Type: graphqlgo.NewList(jobType), // we return a list of discType, defined above
 			Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-				return provider.GetProvider().GetJobs(), nil
+				return engine.New().GetJobs(), nil
 			},
 		},
 	},

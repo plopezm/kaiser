@@ -16,6 +16,7 @@ import (
 func InitializeJob(job *Job) {
 	job.Status = STOPPED
 	job.Sync = &sync.Mutex{}
+	job.OnDestroy = make(chan bool)
 }
 
 // Job Represents executable job
