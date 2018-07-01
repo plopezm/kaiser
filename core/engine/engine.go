@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -44,8 +45,7 @@ func (engine *JobEngine) GetJobs() []core.Job {
 
 	currentJobs := make([]core.Job, 0)
 	for _, job := range engine.jobs {
-		jobCopy := job
-		currentJobs = append(currentJobs, jobCopy.Copy())
+		currentJobs = append(currentJobs, job.Copy())
 	}
 	return currentJobs
 }
@@ -55,16 +55,16 @@ func (engine *JobEngine) applyPeriodicity(newJob *core.Job) {
 		duration := utils.ParseDuration(newJob.Duration)
 		if duration > 0 {
 			newJob.Ticker = time.NewTicker(duration)
-			go engine.periodHandler(*newJob)
+			go engine.periodHandler(newJob)
 		}
 	}
 }
 
-func (engine *JobEngine) periodHandler(job core.Job) {
+func (engine *JobEngine) periodHandler(job *core.Job) {
 	for {
 		select {
 		case <-job.Ticker.C:
-			go job.Start()
+			engine.executeStoredJob(job.Name)
 		case <-job.OnDestroy:
 			job.Ticker.Stop()
 			close(job.OnDestroy)
@@ -73,11 +73,22 @@ func (engine *JobEngine) periodHandler(job core.Job) {
 	}
 }
 
+func (engine *JobEngine) executeStoredJob(jobName string) {
+	engine.jobsMapSync.Lock()
+	defer engine.jobsMapSync.Unlock()
+	storedJob, ok := engine.jobs[jobName]
+	if !ok {
+		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
+		return
+	}
+	go storedJob.Start()
+}
+
 // Start Starts engine logic
 func (engine *JobEngine) Start() {
 	for {
 		job := <-engine.provider.Channel
-
+		log.Println("Received job [" + job.Name + "] from provider")
 		storedJob, ok := engine.jobs[job.Name]
 		if ok {
 			storedJob.OnDestroy <- true
