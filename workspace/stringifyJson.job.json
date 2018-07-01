@@ -23,7 +23,7 @@
         },
         "looseTime": {
             "script": "logger.info('going to sleep '+timeToWait+' seconds');system.sleep(10, 'S');logger.info('Wake up');",
-            "onSucess": "sayGoodbye",
+            "onSuccess": "sayGoodbye",
             "onFailure": "sayError"
         },
         "sayGoodbye": {

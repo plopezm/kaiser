@@ -105,8 +105,22 @@ content-type: application/json
 
 query {
     jobs {
+        version
         name
         status
+        hash
+        duration
+        entrypoint
+        args {
+          name  
+          value
+        }
+        tasks {
+          script
+          scriptFile    
+	        onSuccess
+	        onFailure
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 package core
 
 // JobStatus of the current process
-type JobStatus int
+type JobStatus int32
 
 const (
 	// STOPPED The process is stopped

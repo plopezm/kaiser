@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"encoding/hex"
 	"errors"
 
 	graphqlgo "github.com/graphql-go/graphql"
@@ -168,6 +169,17 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(core.Job); ok {
 						return job.Status, nil
+					}
+					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
+				},
+			},
+			"hash": &graphqlgo.Field{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Current status of the job",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if job, ok := p.Source.(core.Job); ok {
+
+						return hex.EncodeToString(job.Hash), nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},

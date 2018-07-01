@@ -15,7 +15,9 @@ import (
 // InitializeJob Initializes internal attributes of a Job
 func InitializeJob(job *Job) {
 	job.Status = STOPPED
-	job.Sync = &sync.Mutex{}
+	job.sync = &sync.Mutex{}
+	job.statusSync = &sync.Mutex{}
+	job.OnDestroy = make(chan bool)
 }
 
 // Job Represents executable job
@@ -28,12 +30,13 @@ type Job struct {
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
-	Status    JobStatus    `json:"status"`
-	Sync      *sync.Mutex  `json:"-"`
-	Folder    string       `json:"-"`
-	Hash      []byte       `json:"-"`
-	OnDestroy chan bool    `json:"-"`
-	Ticker    *time.Ticker `json:"-"`
+	sync       *sync.Mutex
+	Status     JobStatus `json:"status"`
+	statusSync *sync.Mutex
+	Folder     string       `json:"-"`
+	Hash       []byte       `json:"hash"`
+	OnDestroy  chan bool    `json:"-"`
+	Ticker     *time.Ticker `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -52,15 +55,15 @@ type JobTask struct {
 
 // Start Resolves the logic tree
 func (job *Job) Start() {
-	job.Status = RUNNING
+	job.sync.Lock()
+	defer job.sync.Unlock()
+	job.SetStatus(RUNNING)
 	vm := job.initializeVM()
 	currentJob := job.Tasks[job.Entrypoint]
 	for currentJob != nil {
 		switch job.Status {
 		case STOPPED:
 			return
-		case PAUSED:
-			job.Sync.Lock()
 		default:
 		}
 		_, err := vm.Run(job.getScript(currentJob))
@@ -70,24 +73,39 @@ func (job *Job) Start() {
 			currentJob = job.Tasks[currentJob.OnFailure]
 		}
 	}
-	job.Status = STOPPED
+	job.SetStatus(STOPPED)
+}
+
+// SetStatus Sets the job status in an atomic way
+func (job *Job) SetStatus(status JobStatus) {
+	job.statusSync.Lock()
+	defer job.statusSync.Unlock()
+	job.Status = status
+}
+
+// GetStatus Returns the job status in an atomic way
+func (job *Job) GetStatus() JobStatus {
+	job.statusSync.Lock()
+	defer job.statusSync.Unlock()
+	return job.Status
 }
 
 // Stop Stop job execution
 func (job *Job) Stop() {
-	job.Status = STOPPED
+	job.SetStatus(STOPPED)
 }
 
-// Pause pauses the process
-func (job *Job) Pause() {
-	job.Sync.Lock()
-	job.Status = PAUSED
-}
-
-// Resume unpauses the process
-func (job *Job) Resume() {
-	job.Status = RUNNING
-	job.Sync.Unlock()
+// Copy creates a copy of a job object
+func (job *Job) Copy() (copy Job) {
+	copy.Version = job.Version
+	copy.Name = job.Name
+	copy.Status = job.GetStatus()
+	copy.Hash = job.Hash
+	copy.Tasks = job.Tasks
+	copy.Args = job.Args
+	copy.Duration = job.Duration
+	copy.Entrypoint = job.Entrypoint
+	return copy
 }
 
 // initializeVM Creates a new VM with plugins and the current context.
