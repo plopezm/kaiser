@@ -30,9 +30,9 @@ type Job struct {
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
-	sync       *sync.Mutex  `json:"-"`
-	Status     JobStatus    `json:"status"`
-	statusSync *sync.Mutex  `json:"-"`
+	sync       *sync.Mutex
+	Status     JobStatus `json:"status"`
+	statusSync *sync.Mutex
 	Folder     string       `json:"-"`
 	Hash       []byte       `json:"hash"`
 	OnDestroy  chan bool    `json:"-"`
@@ -76,12 +76,14 @@ func (job *Job) Start() {
 	job.SetStatus(STOPPED)
 }
 
+// SetStatus Sets the job status in an atomic way
 func (job *Job) SetStatus(status JobStatus) {
 	job.statusSync.Lock()
 	defer job.statusSync.Unlock()
 	job.Status = status
 }
 
+// GetStatus Returns the job status in an atomic way
 func (job *Job) GetStatus() JobStatus {
 	job.statusSync.Lock()
 	defer job.statusSync.Unlock()
@@ -95,8 +97,14 @@ func (job *Job) Stop() {
 
 // Copy creates a copy of a job object
 func (job *Job) Copy() (copy Job) {
+	copy.Version = job.Version
 	copy.Name = job.Name
 	copy.Status = job.GetStatus()
+	copy.Hash = job.Hash
+	copy.Tasks = job.Tasks
+	copy.Args = job.Args
+	copy.Duration = job.Duration
+	copy.Entrypoint = job.Entrypoint
 	return copy
 }
 
