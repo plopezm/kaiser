@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ type Job struct {
 	Status    JobStatus    `json:"status"`
 	Sync      *sync.Mutex  `json:"-"`
 	Folder    string       `json:"-"`
-	Hash      []byte       `json:"-"`
+	Hash      []byte       `json:"hash"`
 	OnDestroy chan bool    `json:"-"`
 	Ticker    *time.Ticker `json:"-"`
 }
@@ -53,6 +54,8 @@ type JobTask struct {
 
 // Start Resolves the logic tree
 func (job *Job) Start() {
+	job.Sync.Lock()
+	defer job.Sync.Unlock()
 	job.Status = RUNNING
 	vm := job.initializeVM()
 	currentJob := job.Tasks[job.Entrypoint]
@@ -60,8 +63,6 @@ func (job *Job) Start() {
 		switch job.Status {
 		case STOPPED:
 			return
-		case PAUSED:
-			job.Sync.Lock()
 		default:
 		}
 		_, err := vm.Run(job.getScript(currentJob))
@@ -79,16 +80,11 @@ func (job *Job) Stop() {
 	job.Status = STOPPED
 }
 
-// Pause pauses the process
-func (job *Job) Pause() {
-	job.Sync.Lock()
-	job.Status = PAUSED
-}
-
-// Resume unpauses the process
-func (job *Job) Resume() {
-	job.Status = RUNNING
-	job.Sync.Unlock()
+// Copy creates a copy of a job object
+func (job *Job) Copy() (copy Job) {
+	byt, _ := json.Marshal(job)
+	json.Unmarshal(byt, &copy)
+	return copy
 }
 
 // initializeVM Creates a new VM with plugins and the current context.

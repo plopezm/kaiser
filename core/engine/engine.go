@@ -19,8 +19,9 @@ var (
 
 // JobEngine Represents the state machine manager
 type JobEngine struct {
-	provider *provider.JobProvider
-	jobs     map[string]*core.Job
+	provider    *provider.JobProvider
+	jobs        map[string]*core.Job
+	jobsMapSync *sync.Mutex
 }
 
 // New Returns the singleton instance of JobEngine
@@ -28,6 +29,7 @@ func New() *JobEngine {
 	single.Do(func() {
 		engineInstance = new(JobEngine)
 		engineInstance.jobs = make(map[string]*core.Job)
+		engineInstance.jobsMapSync = &sync.Mutex{}
 		engineInstance.provider = provider.GetProvider()
 		engineInstance.provider.RegisterJobNotifier(file.Channel)
 		engineInstance.provider.RegisterJobNotifier(interfaces.Channel)
@@ -37,10 +39,12 @@ func New() *JobEngine {
 
 // GetJobs Returns the list of jobs registered
 func (engine *JobEngine) GetJobs() []core.Job {
+	engine.jobsMapSync.Lock()
+	defer engine.jobsMapSync.Unlock()
+
 	currentJobs := make([]core.Job, 0)
 	for _, job := range engine.jobs {
-		jobCopy := *job
-		currentJobs = append(currentJobs, jobCopy)
+		currentJobs = append(currentJobs, job.Copy())
 	}
 	return currentJobs
 }
@@ -59,7 +63,7 @@ func (engine *JobEngine) periodHandler(job core.Job) {
 	for {
 		select {
 		case <-job.Ticker.C:
-			engine.provider.Channel <- job
+			go job.Start()
 		case <-job.OnDestroy:
 			job.Ticker.Stop()
 			close(job.OnDestroy)
@@ -79,8 +83,14 @@ func (engine *JobEngine) Start() {
 		}
 		core.InitializeJob(&job)
 		engine.applyPeriodicity(&job)
-		engine.jobs[job.Name] = &job
+		engine.addJob(&job)
 
 		go job.Start()
 	}
+}
+
+func (engine *JobEngine) addJob(job *core.Job) {
+	engine.jobsMapSync.Lock()
+	defer engine.jobsMapSync.Unlock()
+	engine.jobs[job.Name] = job
 }
