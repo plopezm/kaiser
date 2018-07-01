@@ -44,7 +44,8 @@ func (engine *JobEngine) GetJobs() []core.Job {
 
 	currentJobs := make([]core.Job, 0)
 	for _, job := range engine.jobs {
-		currentJobs = append(currentJobs, job.Copy())
+		jobCopy := job
+		currentJobs = append(currentJobs, jobCopy.Copy())
 	}
 	return currentJobs
 }
