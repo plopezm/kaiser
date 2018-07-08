@@ -1,0 +1,3 @@
+[submodule "cmd/webapp/kaiser-spa"]
+	path = cmd/webapp/kaiser-spa
+	url = https://github.com/plopezm/kaiser-spa
