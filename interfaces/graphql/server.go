@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/handler"
 )
 
 func graphQLHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +31,31 @@ func graphQLHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+func corsMiddleware(next func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		allowedHeaders := "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token"
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
+		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
+		next(w, r)
+	}
+}
+
 // StartServer Starts graphql api on selected port
 func StartServer(port int) {
 	stringPort := strconv.Itoa(port)
-	http.HandleFunc("/api/graphql", graphQLHandler)
-	log.Println("Started GraphQL interface on " + stringPort)
+	graphqlHandler := handler.New(&handler.Config{
+		Schema:   &JobSchema,
+		Pretty:   true,
+		GraphiQL: true,
+	})
+	// http.HandleFunc("/graphql", corsMiddleware(graphQLHandler))
+	http.Handle("/graphql", graphqlHandler)
 	err := http.ListenAndServe(":"+stringPort, nil)
 	if err != nil {
 		log.Println(err)
+	} else {
+		log.Println("Started GraphQL interface on " + stringPort)
 	}
 }

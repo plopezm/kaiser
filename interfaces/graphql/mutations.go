@@ -75,10 +75,10 @@ var (
 		},
 	})
 
-	mutationType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
-		Name: "MutationType",
+	jobMutation = graphqlgo.NewObject(graphqlgo.ObjectConfig{
+		Name: "jobMutation",
 		Fields: graphqlgo.Fields{
-			"createJobType": &graphqlgo.Field{
+			"createJob": &graphqlgo.Field{
 				Type: jobType,
 				Args: graphqlgo.FieldConfigArgument{
 					"input": &graphqlgo.ArgumentConfig{

@@ -8,6 +8,12 @@
   version = "v0.7.5"
 
 [[projects]]
+  name = "github.com/graphql-go/handler"
+  packages = ["."]
+  revision = "f0393b2c10daeebea900292b8e092e73475399d9"
+  version = "v0.2.1"
+
+[[projects]]
   branch = "master"
   name = "github.com/robertkrimen/otto"
   packages = [".","ast","dbg","file","parser","registry","token"]
@@ -22,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2c22a93c7dafb3d7431b80fd6fb149aa2df581d9293e70de646e0672bf5afe6d"
+  inputs-digest = "3dca5a4dac2615b95de9722f1dfeed4f591fc7bd66bcd51db06852875ab92551"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,7 +1,22 @@
 
+
+POST http://localhost:8080/graphql HTTP/1.1
+content-type: application/json
+
+query {
+  __schema {
+    queryType {
+      name
+    }
+    types {
+      name
+    }
+  }
+}
+
 ### Get types names from schema
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 query {
@@ -33,7 +48,7 @@ query {
 
 ### Get job schema
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 query {
@@ -63,7 +78,7 @@ query {
 
 ### Get JobTask schema
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 query {
@@ -81,7 +96,7 @@ query {
 
 ### Getting job arguments schema
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 query {
@@ -100,10 +115,10 @@ query {
 
 ### Get Jobs
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-query {
+query jobQuery {
     jobs {
         version
         name
@@ -111,16 +126,6 @@ query {
         hash
         duration
         entrypoint
-        args {
-          name  
-          value
-        }
-        tasks {
-          script
-          scriptFile    
-	        onSuccess
-	        onFailure
-        }
     }
 }
 
@@ -130,11 +135,11 @@ query {
 
 ### Get job schema
 
-POST http://localhost:8080/api/graphql HTTP/1.1
+POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 query {
-  __type(name: "createJob") {
+  __type(name: "jobMutation") {
       name
       fields {
         name
