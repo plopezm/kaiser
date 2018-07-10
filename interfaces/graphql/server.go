@@ -52,10 +52,10 @@ func StartServer(port int) {
 	})
 	// http.HandleFunc("/graphql", corsMiddleware(graphQLHandler))
 	http.Handle("/graphql", graphqlHandler)
+
+	log.Println("Started GraphQL interface on " + stringPort)
 	err := http.ListenAndServe(":"+stringPort, nil)
 	if err != nil {
 		log.Println(err)
-	} else {
-		log.Println("Started GraphQL interface on " + stringPort)
 	}
 }
