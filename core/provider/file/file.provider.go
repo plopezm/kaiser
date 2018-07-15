@@ -3,6 +3,7 @@ package file
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -58,6 +59,15 @@ func parseJob(folder string, filename string) {
 	newJob.Hash = hash
 	for key, task := range newJob.Tasks {
 		task.Name = key
+		if task.ScriptFile != nil {
+			raw, err := ioutil.ReadFile(folder + *task.ScriptFile)
+			if err != nil {
+				log.Fatalln(err.Error())
+				os.Exit(1)
+			}
+			fileContent := string(raw)
+			task.Script = &fileContent
+		}
 	}
 	Channel <- newJob
 }

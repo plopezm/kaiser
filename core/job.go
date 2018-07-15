@@ -1,9 +1,6 @@
 package core
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
 	"sync"
 	"time"
 
@@ -128,14 +125,6 @@ func (job *Job) initializeVM() *otto.Otto {
 func (job *Job) getScript(current *JobTask) string {
 	if current.Script != nil {
 		return *current.Script
-	}
-	if current.ScriptFile != nil {
-		raw, err := ioutil.ReadFile(job.Folder + *current.ScriptFile)
-		if err != nil {
-			log.Fatalln(err.Error())
-			os.Exit(1)
-		}
-		return string(raw)
 	}
 	return "console.log('[VM ERROR]: Error getScript(), maybe script and scriptFile are undefined')"
 }
