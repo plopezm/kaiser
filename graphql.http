@@ -118,19 +118,14 @@ query {
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-query jobQuery {
-    jobs {
-        version
-        name
-        status
-        hash
-        duration
-        entrypoint
-    }
-}
+{"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  jobs {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
 
+### Get Job by Name
 
-### Get Mutations schema
+POST http://localhost:8080/graphql HTTP/1.1
+content-type: application/json
+
+{"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  getJobById(jobName: \"hihi\") {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
 
 
 ### Get job schema

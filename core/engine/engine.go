@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"errors"
 	"log"
 	"sync"
 	"time"
@@ -48,6 +49,18 @@ func (engine *JobEngine) GetJobs() []core.Job {
 		currentJobs = append(currentJobs, job.Copy())
 	}
 	return currentJobs
+}
+
+// GetJobByName Returns the job with specified name
+func (engine *JobEngine) GetJobByName(name string) (core.Job, error) {
+	engine.jobsMapSync.Lock()
+	defer engine.jobsMapSync.Unlock()
+
+	job, ok := engine.jobs[name]
+	if !ok {
+		return core.Job{}, errors.New("Job " + name + " not found")
+	}
+	return job.Copy(), nil
 }
 
 func (engine *JobEngine) applyPeriodicity(newJob *core.Job) {

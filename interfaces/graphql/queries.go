@@ -14,5 +14,19 @@ var jobQuery = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 				return engine.New().GetJobs(), nil
 			},
 		},
+		"getJobById": &graphqlgo.Field{
+			Type: jobType,
+			Args: graphqlgo.FieldConfigArgument{
+				"jobName": &graphqlgo.ArgumentConfig{
+					Description: "Job name",
+					Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				},
+			},
+			Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+				var jobName = p.Args["jobName"].(string)
+				job, err := engine.New().GetJobByName(jobName)
+				return job, err
+			},
+		},
 	},
 })
