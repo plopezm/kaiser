@@ -6,6 +6,7 @@ import (
 
 	graphqlgo "github.com/graphql-go/graphql"
 	"github.com/plopezm/kaiser/core"
+	"github.com/plopezm/kaiser/utils"
 )
 
 var (
@@ -188,8 +189,18 @@ var (
 				Description: "Current status of the job",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(core.Job); ok {
-
 						return hex.EncodeToString(job.Hash), nil
+					}
+					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
+				},
+			},
+			"log": &graphqlgo.Field{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Current status of the job",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if job, ok := p.Source.(core.Job); ok {
+						content, err := utils.ReadFileContent("logs/" + job.Name + ".log")
+						return *content, err
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
