@@ -20,5 +20,5 @@ clean:
 	$(GOCLEAN)
 	rm -fr $(BUILD_DIR)
 devrun:
-	$(GORUN) cmd/kaiserd/main.go
+	$(GORUN) --race cmd/kaiserd/main.go
 

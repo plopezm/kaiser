@@ -125,7 +125,7 @@ content-type: application/json
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-{"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  getJobById(jobName: \"hihi\") {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
+{"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  getJobById(jobName: \"stringifyJson\") {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
 
 
 ### Get job schema

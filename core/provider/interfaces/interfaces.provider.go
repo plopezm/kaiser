@@ -15,5 +15,8 @@ func init() {
 func NotifyJob(newJob *core.Job) {
 	//newJob.Folder = folder
 	//newJob.Hash = hash
+	for key, task := range newJob.Tasks {
+		task.Name = key
+	}
 	Channel <- *newJob
 }

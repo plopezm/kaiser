@@ -47,6 +47,7 @@ type JobArgs struct {
 
 // JobTask Represents a job task to be performed
 type JobTask struct {
+	Name       string  `json:"name"`
 	Script     *string `json:"script"`
 	ScriptFile *string `json:"scriptFile"`
 	OnSuccess  string  `json:"onSuccess"`

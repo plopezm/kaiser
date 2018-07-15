@@ -51,6 +51,16 @@ var (
 		Name:        "JobTask",
 		Description: "Definition of a simple task",
 		Fields: graphqlgo.Fields{
+			"name": &graphqlgo.Field{
+				Type:        graphqlgo.String,
+				Description: "The task name",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if task, ok := p.Source.(*core.JobTask); ok {
+						return task.Name, nil
+					}
+					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
+				},
+			},
 			"script": &graphqlgo.Field{
 				Type:        graphqlgo.String,
 				Description: "The script to executed in this task",
