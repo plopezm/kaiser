@@ -199,7 +199,7 @@ var (
 				Description: "Job's output (100 last lines)",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(core.Job); ok {
-						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 150)
+						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 100)
 						return *content, err
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
