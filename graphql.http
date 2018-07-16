@@ -1,117 +1,23 @@
-
-
-POST http://localhost:8080/graphql HTTP/1.1
-content-type: application/json
-
-query {
-  __schema {
-    queryType {
-      name
-    }
-    types {
-      name
-    }
-  }
-}
-
-### Get types names from schema
+### Instrospection (Types)
 
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-query {
-  __schema {
-    types {
-      name
-      fields {
-        name
-        description
-        type { 
-          name
-          kind
-        }
-        args { 
-          name
-          type { 
-            name
-            kind 
-            ofType { 
-              name
-              kind
-            }
-          }
-        }
-      }
-    }
-  }
-}
+{"operationName":null,"variables":{},"query":"{\n  __schema {\n    types {\n      name\n      description\n      fields {\n        name\n        description\n      }\n    }\n  }\n}\n"}
 
-### Get job schema
+### Instrospection (Queries)
 
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-query {
-  __type(name: "Job") {
-      name
-      fields {
-        name
-        description
-        type { 
-          name
-          kind
-        }
-        args { 
-          name
-          type { 
-            name
-            kind 
-            ofType { 
-              name
-              kind
-            }
-          }
-        }
-      }
-  }
-}
+{"operationName":null,"variables":{},"query":"{\n  __schema {\n    queryType {\n      name\n      description\n      fields {\n        name\n        description\n        args {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"}
 
-### Get JobTask schema
+### Introspection (Mutations)
 
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-query {
-  __type(name: "JobTask") {
-    name
-    fields {
-      name
-      type {
-        kind
-      }
-      description
-    }
-  }
-}
-
-### Getting job arguments schema
-
-POST http://localhost:8080/graphql HTTP/1.1
-content-type: application/json
-
-query {
-  __type(name: "jobArgs") {
-    name
-    fields {
-      name
-      type {
-        kind
-      }
-      description
-    }
-  }
-}
-
+{"operationName":null,"variables":{},"query":"{\n  __schema {\n    mutationType {\n      name\n      description\n      fields {\n        name\n        description\n        args {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"}
 
 ### Get Jobs
 
@@ -126,64 +32,3 @@ POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 {"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  getJobById(jobName: \"stringifyJson\") {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
-
-
-### Get job schema
-
-POST http://localhost:8080/graphql HTTP/1.1
-content-type: application/json
-
-query {
-  __type(name: "jobMutation") {
-      name
-      fields {
-        name
-        description
-        type { 
-          name
-          kind
-        }
-        args { 
-          name
-          type { 
-            name
-            kind 
-            ofType { 
-              name
-              kind
-            }
-          }
-        }
-      }
-  }
-}
-
-
-### Creating new job example request
-
-POST http://localhost:8080/api/graphql HTTP/1.1
-content-type: application/json
-
-mutation {
-  createJobType(input: {
-    name: "example",
-    args: [{name: "hello", value: "hello"}, {name: "world", value: "world"}],
-    duration: "PT15S",
-    entrypoint: "FirstTask",
-    tasks: [
-		{
-			name: "FirstTask",
-			script: "logger.info(hello + ' ' + world);",
-			onSuccess: "",
-			onFailure: ""
-		}
-	]
-  }) {
-    name
-    args {
-    	name
-    	value
-    }
-  }
-}
-

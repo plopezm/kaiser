@@ -15,7 +15,7 @@ Currently is under development but any help is very welcome. The language used i
 - [ ] [Job launcher] Add a way to launch jobs from http events
 - [ ] [Job management] GraphQL API for creating, executing, removing tasks remotely.
 - [ ] [Web interface] A web interface to manage kaiser 
-- [ ] [Plugins] More plugins
+- [ ] [Plugins] More default plugins & runtime plugins (in Linux & OSX)
 
 # Project structure
 
@@ -50,6 +50,6 @@ The workspace folder has some rules:
 - Every job file has special names, *.job.json
 
 
-# Examples (Some examples are outdated)
+# Examples
 
 The file graphql.http contains some examples to use with the current API.
