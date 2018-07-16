@@ -196,10 +196,10 @@ var (
 			},
 			"log": &graphqlgo.Field{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "Current status of the job",
+				Description: "Job's output (100 last lines)",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(core.Job); ok {
-						content, err := utils.ReadFileContent("logs/" + job.Name + ".log")
+						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 150)
 						return *content, err
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
