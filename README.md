@@ -1,8 +1,9 @@
-# Kaiser
+# Kaiser Job Runner
 
-Kaiser is a job executer, currently is under development but any help is very welcome. The language used is javascript for scripts (in workspace folder you can find some examples). The Javascript interpreter is simple, you can find more information [here](https://github.com/robertkrimen/otto)
+Kaiser is a extensible job runner. It is responsible for execute jobs provided by the different implemented providers. The language used for developing script is javascript with the functions implemented with plugins. Kaiser can be used as workflow manager, IoT projects or for dynamic job programming.
 
-The idea is to create a job executer that can be modified or updated using a graphQL api. This can be used for IoT project or for dynamic job programming.
+Currently is under development but any help is very welcome. The language used is javascript (basic javascript) for scripts (in workspace folder you can find some examples).
+
 
 # Status
 
@@ -10,9 +11,9 @@ The idea is to create a job executer that can be modified or updated using a gra
 - [x] Basic job foldering 
 - [x] Script file dynamic read (scripts can be modified and reexecuted automatically)
 - [x] Argument setting
-- [ ] [Job management] GraphQL API for creating, executing, removing tasks remotely.
 - [x] [Job scheduling] Scheduling jobs using ISO 8601 Duration
-- [ ] [Command interface] A commandline interface to manage kaiser 
+- [ ] [Job launcher] Add a way to launch jobs from http events
+- [ ] [Job management] GraphQL API for creating, executing, removing tasks remotely.
 - [ ] [Web interface] A web interface to manage kaiser 
 - [ ] [Plugins] More plugins
 
@@ -49,6 +50,6 @@ The workspace folder has some rules:
 - Every job file has special names, *.job.json
 
 
-# Examples
+# Examples (Some examples are outdated)
 
 The file graphql.http contains some examples to use with the current API.
