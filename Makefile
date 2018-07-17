@@ -19,6 +19,9 @@ test:
 clean:
 	$(GOCLEAN)
 	rm -fr $(BUILD_DIR)
-devrun:
+devrun: run sparun
+run:
 	$(GORUN) --race cmd/kaiserd/main.go
+sparun:
+	cd ./cmd/webapp/kaiser-spa && npm start
 

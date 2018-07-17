@@ -4,6 +4,34 @@ Kaiser is a extensible job runner. It is responsible for execute jobs provided b
 
 Currently is under development but any help is very welcome. The language used is javascript (basic javascript) for scripts (in workspace folder you can find some examples).
 
+# Cloning project including web application
+
+* Cloning repository and submodules
+```
+git clone --recursive https://github.com/plopezm/kaiser
+```
+
+* Installing golang dependencies
+```
+dep ensure
+``` 
+
+* Installing SPA dependencies
+```
+cd cmd/webapp/kaiser-spa
+npm install
+```
+
+# Launching Kaiser for development
+
+* Running kaiser daemon only:
+```
+make run
+```
+* Running kaiser & kaiser spa:
+```
+make -j2 devrun 
+```
 
 # Status
 
@@ -49,7 +77,6 @@ The workspace folder has some rules:
 - Folder "disabled" is used to ignore jobs putting them there.
 - Every job file has special names, *.job.json
 
-
-# Examples
+# GraphQL Examples
 
 The file graphql.http contains some examples to use with the current API.
