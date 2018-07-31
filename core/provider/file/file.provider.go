@@ -8,15 +8,16 @@ import (
 	"time"
 
 	"github.com/plopezm/kaiser/config"
-	"github.com/plopezm/kaiser/core"
+	"github.com/plopezm/kaiser/core/types"
 	"github.com/plopezm/kaiser/utils"
 )
 
-var Channel chan core.Job
+// Channel the channel used to notify new jobs
+var Channel chan types.Job
 
 func init() {
 	// This should prepare everything for thread looking for new files
-	Channel = make(chan core.Job)
+	Channel = make(chan types.Job)
 	go startNotifier()
 }
 
@@ -50,7 +51,7 @@ func isNotKaiserDir(folderName string) bool {
 
 // parseJob Parses and creates a new job file
 func parseJob(folder string, filename string) {
-	var newJob core.Job
+	var newJob types.Job
 	hash, err := utils.GetJSONObjectFromFileWithHash(folder+filename, &newJob)
 	if err != nil {
 		return

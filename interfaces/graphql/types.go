@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	graphqlgo "github.com/graphql-go/graphql"
-	"github.com/plopezm/kaiser/core"
+	"github.com/plopezm/kaiser/core/types"
 	"github.com/plopezm/kaiser/utils"
 )
 
@@ -15,10 +15,10 @@ var (
 		Description: "Status of the current job",
 		Values: graphqlgo.EnumValueConfigMap{
 			"STOPPED": &graphqlgo.EnumValueConfig{
-				Value: core.STOPPED,
+				Value: types.STOPPED,
 			},
 			"RUNNING": &graphqlgo.EnumValueConfig{
-				Value: core.RUNNING,
+				Value: types.RUNNING,
 			},
 		},
 	})
@@ -30,7 +30,7 @@ var (
 			"name": &graphqlgo.Field{
 				Type: graphqlgo.NewNonNull(graphqlgo.String),
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if args, ok := p.Source.(core.JobArgs); ok {
+					if args, ok := p.Source.(types.JobArgs); ok {
 						return args.Name, nil
 					}
 					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
@@ -39,7 +39,7 @@ var (
 			"value": &graphqlgo.Field{
 				Type: graphqlgo.NewNonNull(graphqlgo.String),
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if args, ok := p.Source.(core.JobArgs); ok {
+					if args, ok := p.Source.(types.JobArgs); ok {
 						return args.Value, nil
 					}
 					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
@@ -56,7 +56,7 @@ var (
 				Type:        graphqlgo.String,
 				Description: "The task name",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if task, ok := p.Source.(*core.JobTask); ok {
+					if task, ok := p.Source.(*types.JobTask); ok {
 						return task.Name, nil
 					}
 					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
@@ -66,7 +66,7 @@ var (
 				Type:        graphqlgo.String,
 				Description: "The script to executed in this task",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if task, ok := p.Source.(*core.JobTask); ok {
+					if task, ok := p.Source.(*types.JobTask); ok {
 						return task.Script, nil
 					}
 					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
@@ -76,7 +76,7 @@ var (
 				Type:        graphqlgo.String,
 				Description: "The script file to executed in this task",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if task, ok := p.Source.(*core.JobTask); ok {
+					if task, ok := p.Source.(*types.JobTask); ok {
 						return task.ScriptFile, nil
 					}
 					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
@@ -86,7 +86,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The script to executed if success",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if task, ok := p.Source.(*core.JobTask); ok {
+					if task, ok := p.Source.(*types.JobTask); ok {
 						return task.OnSuccess, nil
 					}
 					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
@@ -96,7 +96,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The script to executed if failure",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if task, ok := p.Source.(*core.JobTask); ok {
+					if task, ok := p.Source.(*types.JobTask); ok {
 						return task.OnFailure, nil
 					}
 					return nil, errors.New("Error getting JobTask field " + p.Info.FieldName)
@@ -114,7 +114,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Version, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -124,7 +124,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Name, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -134,7 +134,7 @@ var (
 				Type:        graphqlgo.NewList(jobArgsType),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Args, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -144,7 +144,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Duration, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -154,7 +154,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Entrypoint, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -164,7 +164,7 @@ var (
 				Type:        graphqlgo.NewList(jobTaskType),
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						taskArray := make([]interface{}, 0)
 						for _, jobTask := range job.Tasks {
 							taskArray = append(taskArray, jobTask)
@@ -178,7 +178,7 @@ var (
 				Type:        graphqlgo.NewNonNull(jobStatusType),
 				Description: "Current status of the job",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return job.Status, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -188,7 +188,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "Current status of the job",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						return hex.EncodeToString(job.Hash), nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
@@ -198,7 +198,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "Job's output (100 last lines)",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(core.Job); ok {
+					if job, ok := p.Source.(types.Job); ok {
 						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 100)
 						return *content, err
 					}

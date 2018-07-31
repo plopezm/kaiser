@@ -2,8 +2,8 @@ package graphql
 
 import (
 	graphqlgo "github.com/graphql-go/graphql"
-	"github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/provider/interfaces"
+	"github.com/plopezm/kaiser/core/types"
 )
 
 var (
@@ -89,24 +89,24 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					var inp = p.Args["input"].(map[string]interface{})
 
-					newJob := core.Job{
+					newJob := types.Job{
 						Name:       inp["name"].(string),
 						Entrypoint: inp["entrypoint"].(string),
 						Duration:   inp["duration"].(string),
 					}
 
-					newJob.Args = make([]core.JobArgs, len(inp["args"].([]interface{})))
+					newJob.Args = make([]types.JobArgs, len(inp["args"].([]interface{})))
 					for index, jobArg := range inp["args"].([]interface{}) {
-						newJob.Args[index] = core.JobArgs{
+						newJob.Args[index] = types.JobArgs{
 							Name:  jobArg.(map[string]interface{})["name"].(string),
 							Value: jobArg.(map[string]interface{})["value"].(string),
 						}
 					}
 
-					newJob.Tasks = make(map[string]*core.JobTask)
+					newJob.Tasks = make(map[string]*types.JobTask)
 					for _, jobTask := range inp["tasks"].([]interface{}) {
 						scriptString := jobTask.(map[string]interface{})["script"].(string)
-						newJob.Tasks[jobTask.(map[string]interface{})["name"].(string)] = &core.JobTask{
+						newJob.Tasks[jobTask.(map[string]interface{})["name"].(string)] = &types.JobTask{
 							Script:    &scriptString,
 							OnSuccess: jobTask.(map[string]interface{})["onSuccess"].(string),
 							OnFailure: jobTask.(map[string]interface{})["onFailure"].(string),

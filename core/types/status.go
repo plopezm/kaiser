@@ -1,4 +1,4 @@
-package core
+package types
 
 // JobStatus of the current process
 type JobStatus int32

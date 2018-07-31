@@ -1,4 +1,4 @@
-package engine
+package core
 
 import (
 	"errors"
@@ -6,10 +6,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/provider"
 	"github.com/plopezm/kaiser/core/provider/file"
 	"github.com/plopezm/kaiser/core/provider/interfaces"
+	"github.com/plopezm/kaiser/core/types"
 	"github.com/plopezm/kaiser/utils"
 )
 
@@ -22,7 +22,7 @@ var (
 // JobEngine Represents the state machine manager
 type JobEngine struct {
 	provider    *provider.JobProvider
-	jobs        map[string]*core.Job
+	jobs        map[string]*types.Job
 	jobsMapSync *sync.Mutex
 }
 
@@ -30,7 +30,7 @@ type JobEngine struct {
 func New() *JobEngine {
 	single.Do(func() {
 		engineInstance = new(JobEngine)
-		engineInstance.jobs = make(map[string]*core.Job)
+		engineInstance.jobs = make(map[string]*types.Job)
 		engineInstance.jobsMapSync = &sync.Mutex{}
 		engineInstance.provider = provider.GetProvider()
 		engineInstance.provider.RegisterJobNotifier(file.Channel)
@@ -40,11 +40,11 @@ func New() *JobEngine {
 }
 
 // GetJobs Returns the list of jobs registered
-func (engine *JobEngine) GetJobs() []core.Job {
+func (engine *JobEngine) GetJobs() []types.Job {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 
-	currentJobs := make([]core.Job, 0)
+	currentJobs := make([]types.Job, 0)
 	for _, job := range engine.jobs {
 		currentJobs = append(currentJobs, job.Copy())
 	}
@@ -52,18 +52,18 @@ func (engine *JobEngine) GetJobs() []core.Job {
 }
 
 // GetJobByName Returns the job with specified name
-func (engine *JobEngine) GetJobByName(name string) (core.Job, error) {
+func (engine *JobEngine) GetJobByName(name string) (types.Job, error) {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 
 	job, ok := engine.jobs[name]
 	if !ok {
-		return core.Job{}, errors.New("Job " + name + " not found")
+		return types.Job{}, errors.New("Job " + name + " not found")
 	}
 	return job.Copy(), nil
 }
 
-func (engine *JobEngine) applyPeriodicity(newJob *core.Job) {
+func (engine *JobEngine) applyPeriodicity(newJob *types.Job) {
 	if len(newJob.Duration) > 0 {
 		duration := utils.ParseDuration(newJob.Duration)
 		if duration > 0 {
@@ -73,7 +73,7 @@ func (engine *JobEngine) applyPeriodicity(newJob *core.Job) {
 	}
 }
 
-func (engine *JobEngine) periodHandler(job *core.Job) {
+func (engine *JobEngine) periodHandler(job *types.Job) {
 	for {
 		select {
 		case <-job.Ticker.C:
@@ -106,7 +106,7 @@ func (engine *JobEngine) Start() {
 		if ok {
 			storedJob.OnDestroy <- true
 		}
-		core.InitializeJob(&job)
+		types.InitializeJob(&job)
 		engine.applyPeriodicity(&job)
 		engine.addJob(&job)
 
@@ -114,7 +114,7 @@ func (engine *JobEngine) Start() {
 	}
 }
 
-func (engine *JobEngine) addJob(job *core.Job) {
+func (engine *JobEngine) addJob(job *types.Job) {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 	engine.jobs[job.Name] = job
