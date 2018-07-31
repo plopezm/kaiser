@@ -32,3 +32,17 @@ POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
 {"operationName":"jobQuery","variables":{},"query":"query jobQuery {\n  getJobById(jobName: \"stringifyJson\") {\n    version\n    name\n    status\n    hash\n    duration\n    entrypoint\n    __typename\n  }\n}\n"}
+
+### Create a new Job
+
+POST http://localhost:8080/graphql HTTP/1.1
+content-type: application/json
+
+{"operationName":"jobMutation","variables":{"job":{"version":"1","name":"testing","entrypoint":"initial","duration":"PT20S","args":[{"name":"hello","value":"Hello World!"}],"tasks":[{"name":"initial","onSuccess":"","onFailure":"","script":"logger.info(hello);"}]}},"query":"mutation jobMutation($job: CreateJobType!) {\n  createJob(input: $job) {\n    name\n    __typename\n  }\n}\n"}
+
+### Create Job with multiple tasks 
+
+POST http://localhost:8080/graphql HTTP/1.1
+content-type: application/json
+
+{"operationName":"jobMutation","variables":{"job":{"version":"1","name":"testing","entrypoint":"printA","duration":"PT30S","args":[{"name":"a","value":"a"},{"name":"b","value":"b"}],"tasks":[{"name":"printB","onSuccess":"","onFailure":"","script":"logger.info(b);"},{"name":"printA","onSuccess":"printB","onFailure":"printB","script":"logger.info(a);"}]}},"query":"mutation jobMutation($job: CreateJobType!) {\n  createJob(input: $job) {\n    name\n    __typename\n  }\n}\n"}

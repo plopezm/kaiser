@@ -44,7 +44,7 @@ var (
 	})
 
 	createJobType = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
-		Name: "createJob",
+		Name: "CreateJobType",
 		Fields: graphqlgo.InputObjectConfigFieldMap{
 			"version": &graphqlgo.InputObjectFieldConfig{
 				Type:         graphqlgo.String,
