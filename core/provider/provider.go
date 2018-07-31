@@ -7,18 +7,20 @@ import (
 	"github.com/plopezm/kaiser/core"
 )
 
-var provider *JobProvider
+var (
+	single sync.Once
 
-func init() {
-	// This should prepare everything for thread looking for new files
-	provider = new(JobProvider)
-	provider.jobs = make(map[string][]byte)
-	provider.Channel = make(chan core.Job)
-	provider.sync = &sync.Mutex{}
-}
+	provider *JobProvider
+)
 
 // GetProvider Returns the an instance of a FileJobProvider
 func GetProvider() *JobProvider {
+	single.Do(func() {
+		provider = new(JobProvider)
+		provider.jobs = make(map[string][]byte)
+		provider.Channel = make(chan core.Job)
+		provider.sync = &sync.Mutex{}
+	})
 	return provider
 }
 
