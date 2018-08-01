@@ -2,12 +2,12 @@ package main
 
 import (
 	_ "github.com/plopezm/kaiser/config"
-	core "github.com/plopezm/kaiser/core"
-	"github.com/plopezm/kaiser/interfaces/graphql"
+	"github.com/plopezm/kaiser/core"
+	_ "github.com/plopezm/kaiser/interfaces/graphql"
 )
 
 func main() {
+	go core.StartServer(8080)
 	engineInstance := core.New()
-	go graphql.StartServer(8080)
 	engineInstance.Start()
 }
