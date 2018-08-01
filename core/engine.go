@@ -11,6 +11,7 @@ import (
 	"github.com/plopezm/kaiser/core/provider/interfaces"
 	"github.com/plopezm/kaiser/core/types"
 	"github.com/plopezm/kaiser/utils"
+	"github.com/robertkrimen/otto"
 )
 
 var (
@@ -94,7 +95,7 @@ func (engine *JobEngine) executeStoredJob(jobName string) {
 		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
 		return
 	}
-	go storedJob.Start()
+	go storedJob.Start(initializeVM(storedJob.Name, storedJob.Args))
 }
 
 // Start Starts engine logic
@@ -110,8 +111,23 @@ func (engine *JobEngine) Start() {
 		engine.applyPeriodicity(&job)
 		engine.addJob(&job)
 
-		go job.Start()
+		go job.Start(initializeVM(job.Name, job.Args))
 	}
+}
+
+// initializeVM Creates a new VM with plugins and the current context.
+// Every job executed will have its own context, args and plugins.
+// By default all plugins are set in the VM.
+func initializeVM(jobName string, args []types.JobArgs) *otto.Otto {
+	context := &types.JobInstanceContext{
+		JobName: jobName,
+	}
+	vm := NewVMWithPlugins(context)
+	// Setting job arguments in VM
+	for _, arg := range args {
+		vm.Set(arg.Name, arg.Value)
+	}
+	return vm
 }
 
 func (engine *JobEngine) addJob(job *types.Job) {

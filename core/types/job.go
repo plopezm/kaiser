@@ -4,8 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/plopezm/kaiser/core/context"
-	"github.com/plopezm/kaiser/core/interpreter"
 	"github.com/robertkrimen/otto"
 )
 
@@ -52,11 +50,10 @@ type JobTask struct {
 }
 
 // Start Resolves the logic tree
-func (job *Job) Start() {
+func (job *Job) Start(vm *otto.Otto) {
 	job.sync.Lock()
 	defer job.sync.Unlock()
 	job.SetStatus(RUNNING)
-	vm := job.initializeVM()
 	currentJob := job.Tasks[job.Entrypoint]
 	for currentJob != nil {
 		switch job.Status {
@@ -104,21 +101,6 @@ func (job *Job) Copy() (copy Job) {
 	copy.Duration = job.Duration
 	copy.Entrypoint = job.Entrypoint
 	return copy
-}
-
-// initializeVM Creates a new VM with plugins and the current context.
-// Every job executed will have its own context, args and plugins.
-// By default all plugins are set in the VM.
-func (job *Job) initializeVM() *otto.Otto {
-	context := &context.JobInstanceContext{
-		JobName: job.Name,
-	}
-	vm := interpreter.NewVMWithPlugins(context)
-	// Setting job arguments in VM
-	for _, arg := range job.Args {
-		vm.Set(arg.Name, arg.Value)
-	}
-	return vm
 }
 
 // GetScript Returns the script from inline declaration or from referenced declaration

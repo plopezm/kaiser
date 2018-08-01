@@ -1,4 +1,4 @@
-package context
+package types
 
 type JobContext interface {
 	GetJobName() string
