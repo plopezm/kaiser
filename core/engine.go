@@ -93,7 +93,7 @@ func (engine *JobEngine) executeStoredJob(jobName string) {
 		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
 		return
 	}
-	log.Println("EXECUTING JOB: " + storedJob.Name)
+	log.Println("-> Executing job [ " + storedJob.Name + " ]")
 	go storedJob.Start(initializeVM(storedJob.Name, storedJob.Args))
 }
 
