@@ -54,7 +54,7 @@ var (
 		Fields: graphqlgo.Fields{
 			"type": &graphqlgo.Field{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "Activation type, currently the options are 'local' or 'graphql'",
+				Description: "Activation type, currently the options are 'local' or 'remote'",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if jobActivation, ok := p.Source.(types.JobActivation); ok {
 						return jobActivation.Type, nil
@@ -237,7 +237,10 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 100)
-						return *content, err
+						if err != nil {
+							*content = ""
+						}
+						return *content, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},

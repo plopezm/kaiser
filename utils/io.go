@@ -46,11 +46,14 @@ func ReadFileContent(filepath string) (*string, error) {
 
 // ReadInverseFileContent reads the content of a file a returns a pointer to it
 func ReadInverseFileContent(filepath string, maxLines int) (*string, error) {
-	file, _ := os.OpenFile(filepath, os.O_RDONLY, 0666)
+	result := ""
+	file, err := os.OpenFile(filepath, os.O_RDONLY, 0666)
+	if err != nil {
+		return &result, err
+	}
 	defer file.Close()
 	fstat, _ := file.Stat()
 
-	result := ""
 	newline := ""
 	linesFound := 0
 	buf := make([]byte, 1)

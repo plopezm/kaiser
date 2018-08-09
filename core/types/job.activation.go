@@ -14,6 +14,6 @@ type JobActivationType string
 const (
 	//LOCAL Normal job executed once is received
 	LOCAL JobActivationType = "local"
-	//GRAPHQL This job will be executed by request
-	GRAPHQL JobActivationType = "graphql"
+	//REMOTE This job will be executed by request
+	REMOTE JobActivationType = "remote"
 )

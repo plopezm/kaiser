@@ -2,7 +2,7 @@
     "version": "1",
     "name": "stringifyJson",
     "activation": {
-        "type": "graphql",
+        "type": "remote",
         "args": [
             {
                 "name": "me"

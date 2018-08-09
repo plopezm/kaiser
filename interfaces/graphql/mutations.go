@@ -26,7 +26,7 @@ var (
 		Fields: graphqlgo.InputObjectConfigFieldMap{
 			"type": &graphqlgo.InputObjectFieldConfig{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "Activation type, currently the options are 'local' or 'graphql'",
+				Description: "Activation type, currently the options are 'local' or 'remote'",
 			},
 			"duration": &graphqlgo.InputObjectFieldConfig{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
