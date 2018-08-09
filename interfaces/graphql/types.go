@@ -145,7 +145,7 @@ var (
 				Description: "The Job engine version, currently only v1 is supported",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
-						return job.Duration, nil
+						return job.Activation.Duration, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},

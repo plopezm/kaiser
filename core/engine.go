@@ -40,6 +40,21 @@ func New() *JobEngine {
 	return engineInstance
 }
 
+// initializeVM Creates a new VM with plugins and the current context.
+// Every job executed will have its own context, args and plugins.
+// By default all plugins are set in the VM.
+func initializeVM(jobName string, args []types.JobArgs) *otto.Otto {
+	context := &types.JobInstanceContext{
+		JobName: jobName,
+	}
+	vm := NewVMWithPlugins(context)
+	// Setting job arguments in VM
+	for _, arg := range args {
+		vm.Set(arg.Name, arg.Value)
+	}
+	return vm
+}
+
 // GetJobs Returns the list of jobs registered
 func (engine *JobEngine) GetJobs() []types.Job {
 	engine.jobsMapSync.Lock()
@@ -64,27 +79,10 @@ func (engine *JobEngine) GetJobByName(name string) (types.Job, error) {
 	return job.Copy(), nil
 }
 
-func (engine *JobEngine) applyPeriodicity(newJob *types.Job) {
-	if len(newJob.Duration) > 0 {
-		duration := utils.ParseDuration(newJob.Duration)
-		if duration > 0 {
-			newJob.Ticker = time.NewTicker(duration)
-			go engine.periodHandler(newJob)
-		}
-	}
-}
-
-func (engine *JobEngine) periodHandler(job *types.Job) {
-	for {
-		select {
-		case <-job.Ticker.C:
-			engine.executeStoredJob(job.Name)
-		case <-job.OnDestroy:
-			job.Ticker.Stop()
-			close(job.OnDestroy)
-			return
-		}
-	}
+func (engine *JobEngine) addJob(job *types.Job) {
+	engine.jobsMapSync.Lock()
+	defer engine.jobsMapSync.Unlock()
+	engine.jobs[job.Name] = job
 }
 
 func (engine *JobEngine) executeStoredJob(jobName string) {
@@ -95,7 +93,34 @@ func (engine *JobEngine) executeStoredJob(jobName string) {
 		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
 		return
 	}
+	log.Println("EXECUTING JOB: " + storedJob.Name)
 	go storedJob.Start(initializeVM(storedJob.Name, storedJob.Args))
+}
+
+func (engine *JobEngine) manageActivation(newJob *types.Job) {
+	jobActivation := newJob.Activation
+	if jobActivation.Type == types.LOCAL && len(jobActivation.Duration) > 0 {
+		duration := utils.ParseDuration(jobActivation.Duration)
+		if duration > 0 {
+			newJob.Ticker = time.NewTicker(duration)
+		}
+	}
+	go engine.periodHandler(newJob)
+}
+
+func (engine *JobEngine) periodHandler(job *types.Job) {
+
+	for {
+		select {
+		case <-job.Ticker.C:
+			engine.executeStoredJob(job.Name)
+		case <-job.OnActivation:
+			engine.executeStoredJob(job.Name)
+		case <-job.OnDestroy:
+			job.Clean()
+			return
+		}
+	}
 }
 
 // Start Starts engine logic
@@ -108,30 +133,7 @@ func (engine *JobEngine) Start() {
 			storedJob.OnDestroy <- true
 		}
 		types.InitializeJob(&job)
-		engine.applyPeriodicity(&job)
+		engine.manageActivation(&job)
 		engine.addJob(&job)
-
-		go job.Start(initializeVM(job.Name, job.Args))
 	}
-}
-
-// initializeVM Creates a new VM with plugins and the current context.
-// Every job executed will have its own context, args and plugins.
-// By default all plugins are set in the VM.
-func initializeVM(jobName string, args []types.JobArgs) *otto.Otto {
-	context := &types.JobInstanceContext{
-		JobName: jobName,
-	}
-	vm := NewVMWithPlugins(context)
-	// Setting job arguments in VM
-	for _, arg := range args {
-		vm.Set(arg.Name, arg.Value)
-	}
-	return vm
-}
-
-func (engine *JobEngine) addJob(job *types.Job) {
-	engine.jobsMapSync.Lock()
-	defer engine.jobsMapSync.Unlock()
-	engine.jobs[job.Name] = job
 }

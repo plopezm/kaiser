@@ -89,10 +89,15 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					var inp = p.Args["input"].(map[string]interface{})
 
+					var jobActivation = types.JobActivation{
+						Type:     types.LOCAL,
+						Duration: inp["duration"].(string),
+					}
+
 					newJob := types.Job{
 						Name:       inp["name"].(string),
 						Entrypoint: inp["entrypoint"].(string),
-						Duration:   inp["duration"].(string),
+						Activation: jobActivation,
 					}
 
 					newJob.Args = make([]types.JobArgs, len(inp["args"].([]interface{})))

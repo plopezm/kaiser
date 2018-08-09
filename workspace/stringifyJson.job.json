@@ -1,19 +1,17 @@
 {
     "version": "1",
     "name": "stringifyJson",
-    "args": [
-        {
-            "name": "me",
-            "value": {
-                "name": "Pablo Lopez Martinez"
+    "activation": {
+        "type": "graphql",
+        "args": [
+            {
+                "name": "me"
+            },
+            {
+                "name": "timeToWait"
             }
-        },
-        {
-            "name": "timeToWait",
-            "value": 10
-        }
-    ],
-    "duration": "PT30S",
+        ]
+    },
     "start": "printHello",
     "tasks": {
         "printHello": {

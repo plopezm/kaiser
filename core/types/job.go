@@ -12,7 +12,11 @@ func InitializeJob(job *Job) {
 	job.Status = STOPPED
 	job.sync = &sync.Mutex{}
 	job.statusSync = &sync.Mutex{}
+	job.OnActivation = make(chan bool)
 	job.OnDestroy = make(chan bool)
+	job.Ticker = &time.Ticker{
+		C: nil,
+	}
 }
 
 // Job Represents executable job
@@ -21,17 +25,18 @@ type Job struct {
 	Version    string              `json:"version"`
 	Name       string              `json:"name"`
 	Args       []JobArgs           `json:"args"`
-	Duration   string              `json:"duration"`
+	Activation JobActivation       `json:"activation"`
 	Entrypoint string              `json:"start"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
-	sync       *sync.Mutex
-	Status     JobStatus `json:"status"`
-	statusSync *sync.Mutex
-	Folder     string       `json:"-"`
-	Hash       []byte       `json:"hash"`
-	OnDestroy  chan bool    `json:"-"`
-	Ticker     *time.Ticker `json:"-"`
+	sync         *sync.Mutex
+	Status       JobStatus `json:"status"`
+	statusSync   *sync.Mutex
+	Folder       string       `json:"-"`
+	Hash         []byte       `json:"hash"`
+	OnActivation chan bool    `json:"-"`
+	OnDestroy    chan bool    `json:"-"`
+	Ticker       *time.Ticker `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -98,9 +103,16 @@ func (job *Job) Copy() (copy Job) {
 	copy.Hash = job.Hash
 	copy.Tasks = job.Tasks
 	copy.Args = job.Args
-	copy.Duration = job.Duration
+	copy.Activation = job.Activation
 	copy.Entrypoint = job.Entrypoint
 	return copy
+}
+
+// Clean Removes reserved channels and timers
+func (job *Job) Clean() {
+	job.Ticker.Stop()
+	close(job.OnDestroy)
+	close(job.OnActivation)
 }
 
 // GetScript Returns the script from inline declaration or from referenced declaration

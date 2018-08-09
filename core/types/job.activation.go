@@ -2,9 +2,10 @@ package types
 
 // JobActivation Represents an activation type
 type JobActivation struct {
-	Type  JobActivationType `json:"type"`
-	Timer string            `json:"duration"`
-	Args  []JobArgs         `json:"args"`
+	Type JobActivationType `json:"type"`
+	// Timer represents an ISO 8601 Duration
+	Duration string    `json:"duration"`
+	Args     []JobArgs `json:"args"`
 }
 
 // JobActivationType Defines types for launching jobs
