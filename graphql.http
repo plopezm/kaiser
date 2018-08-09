@@ -38,7 +38,7 @@ content-type: application/json
 POST http://localhost:8080/graphql HTTP/1.1
 content-type: application/json
 
-{"operationName":"jobMutation","variables":{"job":{"version":"1","name":"testing","entrypoint":"initial","duration":"PT20S","args":[{"name":"hello","value":"Hello World!"}],"tasks":[{"name":"initial","onSuccess":"","onFailure":"","script":"logger.info(hello);"}]}},"query":"mutation jobMutation($job: CreateJobType!) {\n  createJob(input: $job) {\n    name\n    __typename\n  }\n}\n"}
+{"operationName":"jobMutation","variables":{"job":{"version":"1","name":"testing","entrypoint":"initial","activation":{"type": "graphql", "duration": "", "args": [{"name": "testvar", "value": "test_value"}]},"args":[{"name":"hello","value":"Hello World!"}],"tasks":[{"name":"initial","onSuccess":"","onFailure":"","script":"logger.info(hello);"}]}},"query":"mutation jobMutation($job: CreateJobType!) {\n  createJob(input: $job) {\n    name\n    __typename\n  }\n}\n"}
 
 ### Create Job with multiple tasks 
 

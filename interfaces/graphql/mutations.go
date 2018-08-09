@@ -21,6 +21,24 @@ var (
 		},
 	})
 
+	jobActivationTypeInput = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
+		Name: "jobActivationTypeInput",
+		Fields: graphqlgo.InputObjectConfigFieldMap{
+			"type": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Activation type, currently the options are 'local' or 'graphql'",
+			},
+			"duration": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "If type is LOCAL, the execution time duration in ISO 8601",
+			},
+			"args": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewList(jobArgTypeInput),
+				Description: "If type is graphql. Network arguments received with the request",
+			},
+		},
+	})
+
 	jobTaskTypeInput = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
 		Name: "jobTaskTypeInput",
 		Fields: graphqlgo.InputObjectConfigFieldMap{
@@ -59,9 +77,9 @@ var (
 				Type:        graphqlgo.NewList(jobArgTypeInput),
 				Description: "Initial arguments of the job used in script",
 			},
-			"duration": &graphqlgo.InputObjectFieldConfig{
-				Type:         graphqlgo.String,
-				Description:  "The period of time between executions",
+			"activation": &graphqlgo.InputObjectFieldConfig{
+				Type:         graphqlgo.NewNonNull(jobActivationTypeInput),
+				Description:  "The activation settings",
 				DefaultValue: nil,
 			},
 			"entrypoint": &graphqlgo.InputObjectFieldConfig{
@@ -89,15 +107,9 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					var inp = p.Args["input"].(map[string]interface{})
 
-					var jobActivation = types.JobActivation{
-						Type:     types.LOCAL,
-						Duration: inp["duration"].(string),
-					}
-
 					newJob := types.Job{
 						Name:       inp["name"].(string),
 						Entrypoint: inp["entrypoint"].(string),
-						Activation: jobActivation,
 					}
 
 					newJob.Args = make([]types.JobArgs, len(inp["args"].([]interface{})))
@@ -115,6 +127,18 @@ var (
 							Script:    &scriptString,
 							OnSuccess: jobTask.(map[string]interface{})["onSuccess"].(string),
 							OnFailure: jobTask.(map[string]interface{})["onFailure"].(string),
+						}
+					}
+
+					var activation = inp["activation"].(map[string]interface{})
+					newJob.Activation = types.JobActivation{
+						Type:     types.JobActivationType(activation["type"].(string)),
+						Duration: activation["duration"].(string),
+					}
+					newJob.Activation.Args = make([]types.JobArgs, len(activation["args"].([]interface{})))
+					for index, jobArg := range activation["args"].([]interface{}) {
+						newJob.Args[index] = types.JobArgs{
+							Name: jobArg.(map[string]interface{})["name"].(string),
 						}
 					}
 
