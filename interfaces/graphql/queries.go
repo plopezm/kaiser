@@ -11,7 +11,7 @@ var jobQuery = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 		"jobs": &graphqlgo.Field{
 			Type: graphqlgo.NewList(jobType), // we return a list of discType, defined above
 			Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-				return core.New().GetJobs(), nil
+				return core.GetEngineInstance().GetJobs(), nil
 			},
 		},
 		"getJobById": &graphqlgo.Field{
@@ -24,7 +24,7 @@ var jobQuery = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 			},
 			Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 				var jobName = p.Args["jobName"].(string)
-				job, err := core.New().GetJobByName(jobName)
+				job, err := core.GetEngineInstance().GetJobByName(jobName)
 				return job, err
 			},
 		},

@@ -4,8 +4,7 @@ package types
 type JobActivation struct {
 	Type JobActivationType `json:"type"`
 	// Timer represents an ISO 8601 Duration
-	Duration string    `json:"duration"`
-	Args     []JobArgs `json:"args"`
+	Duration string `json:"duration"`
 }
 
 // JobActivationType Defines types for launching jobs

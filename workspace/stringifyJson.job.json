@@ -2,16 +2,16 @@
     "version": "1",
     "name": "stringifyJson",
     "activation": {
-        "type": "remote",
-        "args": [
-            {
-                "name": "me"
-            },
-            {
-                "name": "timeToWait"
-            }
-        ]
+        "type": "remote"
     },
+    "params": [
+        {
+            "name": "me"
+        },
+        {
+            "name": "timeToWait"
+        }
+    ],
     "start": "printHello",
     "tasks": {
         "printHello": {

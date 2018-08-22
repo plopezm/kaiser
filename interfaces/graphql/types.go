@@ -72,16 +72,6 @@ var (
 					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
 				},
 			},
-			"args": &graphqlgo.Field{
-				Type:        graphqlgo.NewList(jobArgsType),
-				Description: "If type is graphql. Network arguments received with the request",
-				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if jobActivation, ok := p.Source.(types.JobActivation); ok {
-						return jobActivation.Args, nil
-					}
-					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
-				},
-			},
 		},
 	})
 
@@ -167,12 +157,22 @@ var (
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
-			"args": &graphqlgo.Field{
+			"constants": &graphqlgo.Field{
 				Type:        graphqlgo.NewList(jobArgsType),
 				Description: "Initial arguments for script tasks. Can be used in the following scripts",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
-						return job.Args, nil
+						return job.Constants, nil
+					}
+					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
+				},
+			},
+			"params": &graphqlgo.Field{
+				Type:        graphqlgo.NewList(jobArgsType),
+				Description: "If type is graphql. Network arguments received with the request",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if job, ok := p.Source.(types.Job); ok {
+						return job.Parameters, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},

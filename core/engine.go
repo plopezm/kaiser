@@ -27,8 +27,8 @@ type JobEngine struct {
 	jobsMapSync *sync.Mutex
 }
 
-// New Returns the singleton instance of JobEngine
-func New() *JobEngine {
+// GetEngineInstance Returns the singleton instance of JobEngine
+func GetEngineInstance() *JobEngine {
 	single.Do(func() {
 		engineInstance = new(JobEngine)
 		engineInstance.jobs = make(map[string]*types.Job)
@@ -85,7 +85,7 @@ func (engine *JobEngine) addJob(job *types.Job) {
 	engine.jobs[job.Name] = job
 }
 
-func (engine *JobEngine) executeStoredJob(jobName string) {
+func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map[string]types.JobArgs) {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 	storedJob, ok := engine.jobs[jobName]
@@ -93,8 +93,20 @@ func (engine *JobEngine) executeStoredJob(jobName string) {
 		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
 		return
 	}
+
+	allParams := make([]types.JobArgs, 0)
+	for _, constant := range storedJob.Constants {
+		allParams = append(allParams, constant)
+	}
+	for _, parameter := range storedJob.Parameters {
+		if value, ok := receivedParameters[parameter.Name]; ok {
+			parameter.Value = value.Value
+		}
+		allParams = append(allParams, parameter)
+	}
+
 	log.Println("-> Executing job [ " + storedJob.Name + " ]")
-	go storedJob.Start(initializeVM(storedJob.Name, storedJob.Args))
+	go storedJob.Start(initializeVM(storedJob.Name, allParams))
 }
 
 func (engine *JobEngine) manageActivation(newJob *types.Job) {
@@ -113,9 +125,9 @@ func (engine *JobEngine) periodHandler(job *types.Job) {
 	for {
 		select {
 		case <-job.Ticker.C:
-			engine.executeStoredJob(job.Name)
+			engine.ExecuteStoredJob(job.Name, nil)
 		case <-job.OnActivation:
-			engine.executeStoredJob(job.Name)
+			engine.ExecuteStoredJob(job.Name, nil)
 		case <-job.OnDestroy:
 			job.Clean()
 			return

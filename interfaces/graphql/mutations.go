@@ -2,6 +2,7 @@ package graphql
 
 import (
 	graphqlgo "github.com/graphql-go/graphql"
+	core "github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/provider/interfaces"
 	"github.com/plopezm/kaiser/core/types"
 )
@@ -96,6 +97,33 @@ var (
 	jobMutation = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 		Name: "jobMutation",
 		Fields: graphqlgo.Fields{
+			"executeJob": &graphqlgo.Field{
+				Type: jobType,
+				Args: graphqlgo.FieldConfigArgument{
+					"jobName": &graphqlgo.ArgumentConfig{
+						Description: "JobToBeExecuted",
+						Type:        graphqlgo.NewNonNull(graphqlgo.String),
+					},
+					"params": &graphqlgo.ArgumentConfig{
+						Description: "Job Parameters",
+						Type:        graphqlgo.NewList(jobArgTypeInput),
+					},
+				},
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					var jobName = p.Args["jobName"].(string)
+					var receivedParams = p.Args["params"].(map[string]interface{})
+
+					var parameters = make(map[string]types.JobArgs, len(receivedParams))
+					for _, jobArg := range receivedParams {
+						parameters[jobArg.(map[string]interface{})["name"].(string)] = types.JobArgs{
+							Name:  jobArg.(map[string]interface{})["name"].(string),
+							Value: jobArg.(map[string]interface{})["value"].(string),
+						}
+					}
+					core.GetEngineInstance().ExecuteStoredJob(jobName, parameters)
+					return true, nil
+				},
+			},
 			"createJob": &graphqlgo.Field{
 				Type: jobType,
 				Args: graphqlgo.FieldConfigArgument{
@@ -112,11 +140,17 @@ var (
 						Entrypoint: inp["entrypoint"].(string),
 					}
 
-					newJob.Args = make([]types.JobArgs, len(inp["args"].([]interface{})))
-					for index, jobArg := range inp["args"].([]interface{}) {
-						newJob.Args[index] = types.JobArgs{
+					newJob.Constants = make([]types.JobArgs, len(inp["constants"].([]interface{})))
+					for index, jobArg := range inp["constants"].([]interface{}) {
+						newJob.Constants[index] = types.JobArgs{
 							Name:  jobArg.(map[string]interface{})["name"].(string),
 							Value: jobArg.(map[string]interface{})["value"].(string),
+						}
+					}
+					newJob.Parameters = make([]types.JobArgs, len(inp["params"].([]interface{})))
+					for index, jobArg := range inp["params"].([]interface{}) {
+						newJob.Parameters[index] = types.JobArgs{
+							Name: jobArg.(map[string]interface{})["name"].(string),
 						}
 					}
 
@@ -134,12 +168,6 @@ var (
 					newJob.Activation = types.JobActivation{
 						Type:     types.JobActivationType(activation["type"].(string)),
 						Duration: activation["duration"].(string),
-					}
-					newJob.Activation.Args = make([]types.JobArgs, len(activation["args"].([]interface{})))
-					for index, jobArg := range activation["args"].([]interface{}) {
-						newJob.Args[index] = types.JobArgs{
-							Name: jobArg.(map[string]interface{})["name"].(string),
-						}
 					}
 
 					interfaces.NotifyJob(&newJob)
