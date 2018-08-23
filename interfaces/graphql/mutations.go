@@ -16,7 +16,7 @@ var (
 				Description: "Argument name",
 			},
 			"value": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Type:        graphqlgo.String,
 				Description: "Argument value",
 			},
 		},
@@ -30,12 +30,8 @@ var (
 				Description: "Activation type, currently the options are 'local' or 'remote'",
 			},
 			"duration": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Type:        graphqlgo.String,
 				Description: "If type is LOCAL, the execution time duration in ISO 8601",
-			},
-			"args": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewList(jobArgTypeInput),
-				Description: "If type is graphql. Network arguments received with the request",
 			},
 		},
 	})
@@ -74,7 +70,7 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "Job name",
 			},
-			"args": &graphqlgo.InputObjectFieldConfig{
+			"params": &graphqlgo.InputObjectFieldConfig{
 				Type:        graphqlgo.NewList(jobArgTypeInput),
 				Description: "Initial arguments of the job used in script",
 			},
@@ -144,7 +140,7 @@ var (
 					for index, jobArg := range inp["params"].([]interface{}) {
 						newJob.Parameters[index] = types.JobArgs{
 							Name:  jobArg.(map[string]interface{})["name"].(string),
-							Value: jobArg.(map[string]interface{})["value"].(string),
+							Value: jobArg.(map[string]interface{})["value"],
 						}
 					}
 
@@ -159,9 +155,12 @@ var (
 					}
 
 					var activation = inp["activation"].(map[string]interface{})
+
 					newJob.Activation = types.JobActivation{
-						Type:     types.JobActivationType(activation["type"].(string)),
-						Duration: activation["duration"].(string),
+						Type: types.JobActivationType(activation["type"].(string)),
+					}
+					if activation["duration"] != nil {
+						newJob.Activation.Duration = activation["duration"].(string)
 					}
 
 					interfaces.NotifyJob(&newJob)

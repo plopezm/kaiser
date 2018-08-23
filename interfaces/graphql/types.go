@@ -37,7 +37,7 @@ var (
 				},
 			},
 			"value": &graphqlgo.Field{
-				Type: graphqlgo.NewNonNull(graphqlgo.String),
+				Type: graphqlgo.String,
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if args, ok := p.Source.(types.JobArgs); ok {
 						return args.Value, nil
@@ -63,7 +63,7 @@ var (
 				},
 			},
 			"duration": &graphqlgo.Field{
-				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Type:        graphqlgo.String,
 				Description: "If type is LOCAL, the execution time duration in ISO 8601",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if jobActivation, ok := p.Source.(types.JobActivation); ok {
