@@ -24,7 +24,6 @@ type Job struct {
 	// External attributes
 	Version    string              `json:"version"`
 	Name       string              `json:"name"`
-	Constants  []JobArgs           `json:"constants"`
 	Parameters []JobArgs           `json:"params"`
 	Activation JobActivation       `json:"activation"`
 	Entrypoint string              `json:"start"`
@@ -103,7 +102,6 @@ func (job *Job) Copy() (copy Job) {
 	copy.Status = job.GetStatus()
 	copy.Hash = job.Hash
 	copy.Tasks = job.Tasks
-	copy.Constants = job.Constants
 	copy.Parameters = job.Parameters
 	copy.Activation = job.Activation
 	copy.Entrypoint = job.Entrypoint

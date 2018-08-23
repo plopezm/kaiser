@@ -140,17 +140,11 @@ var (
 						Entrypoint: inp["entrypoint"].(string),
 					}
 
-					newJob.Constants = make([]types.JobArgs, len(inp["constants"].([]interface{})))
-					for index, jobArg := range inp["constants"].([]interface{}) {
-						newJob.Constants[index] = types.JobArgs{
-							Name:  jobArg.(map[string]interface{})["name"].(string),
-							Value: jobArg.(map[string]interface{})["value"].(string),
-						}
-					}
 					newJob.Parameters = make([]types.JobArgs, len(inp["params"].([]interface{})))
 					for index, jobArg := range inp["params"].([]interface{}) {
 						newJob.Parameters[index] = types.JobArgs{
-							Name: jobArg.(map[string]interface{})["name"].(string),
+							Name:  jobArg.(map[string]interface{})["name"].(string),
+							Value: jobArg.(map[string]interface{})["value"].(string),
 						}
 					}
 

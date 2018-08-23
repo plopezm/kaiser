@@ -85,6 +85,7 @@ func (engine *JobEngine) addJob(job *types.Job) {
 	engine.jobs[job.Name] = job
 }
 
+// ExecuteStoredJob Executes an existing job
 func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map[string]types.JobArgs) {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
@@ -95,9 +96,6 @@ func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map
 	}
 
 	allParams := make([]types.JobArgs, 0)
-	for _, constant := range storedJob.Constants {
-		allParams = append(allParams, constant)
-	}
 	for _, parameter := range storedJob.Parameters {
 		if value, ok := receivedParameters[parameter.Name]; ok {
 			parameter.Value = value.Value

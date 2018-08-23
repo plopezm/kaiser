@@ -157,16 +157,6 @@ var (
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
-			"constants": &graphqlgo.Field{
-				Type:        graphqlgo.NewList(jobArgsType),
-				Description: "Initial arguments for script tasks. Can be used in the following scripts",
-				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
-					if job, ok := p.Source.(types.Job); ok {
-						return job.Constants, nil
-					}
-					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
-				},
-			},
 			"params": &graphqlgo.Field{
 				Type:        graphqlgo.NewList(jobArgsType),
 				Description: "If type is graphql. Network arguments received with the request",
