@@ -107,7 +107,7 @@ var (
 				},
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					var jobName = p.Args["jobName"].(string)
-					var receivedParams = p.Args["params"].(map[string]interface{})
+					var receivedParams = p.Args["params"].([]interface{})
 
 					var parameters = make(map[string]types.JobArgs, len(receivedParams))
 					for _, jobArg := range receivedParams {
@@ -116,8 +116,10 @@ var (
 							Value: jobArg.(map[string]interface{})["value"].(string),
 						}
 					}
-					core.GetEngineInstance().ExecuteStoredJob(jobName, parameters)
-					return true, nil
+					engineInstance := core.GetEngineInstance()
+					engineInstance.ExecuteStoredJob(jobName, parameters)
+					job, err := engineInstance.GetJobByName(jobName)
+					return job, err
 				},
 			},
 			"createJob": &graphqlgo.Field{

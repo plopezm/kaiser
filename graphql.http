@@ -64,8 +64,7 @@ content-type: application/json
             },
             "params": [
                 {
-                    "name": "hello",
-                    "value": "Hello World!"
+                    "name": "hello"
                 }
             ],
             "tasks": [
@@ -123,4 +122,22 @@ content-type: application/json
         }
     },
     "query": "mutation jobMutation($job: CreateJobType!) { createJob(input: $job) { name  __typename }}"
+}
+
+### Create Job with multiple tasks
+POST http://localhost:8080/graphql HTTP/1.1
+content-type: application/json
+
+{
+    "operationName": "jobMutation",
+    "variables": {
+        "jobName": "testing1",
+        "params": [
+            {
+                "name": "hello",
+                "value": "Executed from internet"
+            }
+        ]
+    },
+    "query": "mutation jobMutation($jobName: String!, $params: [jobArgTypeInput]!) { executeJob(jobName: $jobName, params: $params) { name status __typename }}"
 }
