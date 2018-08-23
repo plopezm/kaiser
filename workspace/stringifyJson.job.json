@@ -1,19 +1,17 @@
 {
     "version": "1",
     "name": "stringifyJson",
-    "args": [
+    "activation": {
+        "type": "remote"
+    },
+    "params": [
         {
-            "name": "me",
-            "value": {
-                "name": "Pablo Lopez Martinez"
-            }
+            "name": "me"
         },
         {
-            "name": "timeToWait",
-            "value": 10
+            "name": "timeToWait"
         }
     ],
-    "duration": "PT30S",
     "start": "printHello",
     "tasks": {
         "printHello": {

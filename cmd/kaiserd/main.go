@@ -8,6 +8,6 @@ import (
 
 func main() {
 	go core.StartServer(8080)
-	engineInstance := core.New()
+	engineInstance := core.GetEngineInstance()
 	engineInstance.Start()
 }

@@ -37,10 +37,37 @@ var (
 				},
 			},
 			"value": &graphqlgo.Field{
-				Type: graphqlgo.NewNonNull(graphqlgo.String),
+				Type: graphqlgo.String,
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if args, ok := p.Source.(types.JobArgs); ok {
 						return args.Value, nil
+					}
+					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
+				},
+			},
+		},
+	})
+
+	jobActivationType = graphqlgo.NewObject(graphqlgo.ObjectConfig{
+		Name:        "JobActivation",
+		Description: "Job activation options",
+		Fields: graphqlgo.Fields{
+			"type": &graphqlgo.Field{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Activation type, currently the options are 'local' or 'remote'",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if jobActivation, ok := p.Source.(types.JobActivation); ok {
+						return jobActivation.Type, nil
+					}
+					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
+				},
+			},
+			"duration": &graphqlgo.Field{
+				Type:        graphqlgo.String,
+				Description: "If type is LOCAL, the execution time duration in ISO 8601",
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					if jobActivation, ok := p.Source.(types.JobActivation); ok {
+						return jobActivation.Duration, nil
 					}
 					return nil, errors.New("Error getting JobArgs field " + p.Info.FieldName)
 				},
@@ -122,7 +149,7 @@ var (
 			},
 			"name": &graphqlgo.Field{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "The Job engine version, currently only v1 is supported",
+				Description: "The Job name",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						return job.Name, nil
@@ -130,29 +157,29 @@ var (
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
-			"args": &graphqlgo.Field{
+			"params": &graphqlgo.Field{
 				Type:        graphqlgo.NewList(jobArgsType),
-				Description: "The Job engine version, currently only v1 is supported",
+				Description: "If type is graphql. Network arguments received with the request",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
-						return job.Args, nil
+						return job.Parameters, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
-			"duration": &graphqlgo.Field{
-				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "The Job engine version, currently only v1 is supported",
+			"activation": &graphqlgo.Field{
+				Type:        graphqlgo.NewNonNull(jobActivationType),
+				Description: "Job activation settings",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
-						return job.Duration, nil
+						return job.Activation, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},
 			},
 			"entrypoint": &graphqlgo.Field{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "The Job engine version, currently only v1 is supported",
+				Description: "The first job to be executed",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						return job.Entrypoint, nil
@@ -162,7 +189,7 @@ var (
 			},
 			"tasks": &graphqlgo.Field{
 				Type:        graphqlgo.NewList(jobTaskType),
-				Description: "The Job engine version, currently only v1 is supported",
+				Description: "The job tasks to be executed",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						taskArray := make([]interface{}, 0)
@@ -186,7 +213,7 @@ var (
 			},
 			"hash": &graphqlgo.Field{
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
-				Description: "Current status of the job",
+				Description: "Job hash file",
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						return hex.EncodeToString(job.Hash), nil
@@ -200,7 +227,10 @@ var (
 				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
 					if job, ok := p.Source.(types.Job); ok {
 						content, err := utils.ReadInverseFileContent("logs/"+job.Name+".log", 100)
-						return *content, err
+						if err != nil {
+							*content = ""
+						}
+						return *content, nil
 					}
 					return nil, errors.New("Error getting Job field " + p.Info.FieldName)
 				},

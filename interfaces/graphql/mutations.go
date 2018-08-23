@@ -2,6 +2,7 @@ package graphql
 
 import (
 	graphqlgo "github.com/graphql-go/graphql"
+	core "github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/provider/interfaces"
 	"github.com/plopezm/kaiser/core/types"
 )
@@ -15,8 +16,22 @@ var (
 				Description: "Argument name",
 			},
 			"value": &graphqlgo.InputObjectFieldConfig{
-				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Type:        graphqlgo.String,
 				Description: "Argument value",
+			},
+		},
+	})
+
+	jobActivationTypeInput = graphqlgo.NewInputObject(graphqlgo.InputObjectConfig{
+		Name: "jobActivationTypeInput",
+		Fields: graphqlgo.InputObjectConfigFieldMap{
+			"type": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.NewNonNull(graphqlgo.String),
+				Description: "Activation type, currently the options are 'local' or 'remote'",
+			},
+			"duration": &graphqlgo.InputObjectFieldConfig{
+				Type:        graphqlgo.String,
+				Description: "If type is LOCAL, the execution time duration in ISO 8601",
 			},
 		},
 	})
@@ -55,13 +70,13 @@ var (
 				Type:        graphqlgo.NewNonNull(graphqlgo.String),
 				Description: "Job name",
 			},
-			"args": &graphqlgo.InputObjectFieldConfig{
+			"params": &graphqlgo.InputObjectFieldConfig{
 				Type:        graphqlgo.NewList(jobArgTypeInput),
 				Description: "Initial arguments of the job used in script",
 			},
-			"duration": &graphqlgo.InputObjectFieldConfig{
-				Type:         graphqlgo.String,
-				Description:  "The period of time between executions",
+			"activation": &graphqlgo.InputObjectFieldConfig{
+				Type:         graphqlgo.NewNonNull(jobActivationTypeInput),
+				Description:  "The activation settings",
 				DefaultValue: nil,
 			},
 			"entrypoint": &graphqlgo.InputObjectFieldConfig{
@@ -78,6 +93,35 @@ var (
 	jobMutation = graphqlgo.NewObject(graphqlgo.ObjectConfig{
 		Name: "jobMutation",
 		Fields: graphqlgo.Fields{
+			"executeJob": &graphqlgo.Field{
+				Type: jobType,
+				Args: graphqlgo.FieldConfigArgument{
+					"jobName": &graphqlgo.ArgumentConfig{
+						Description: "JobToBeExecuted",
+						Type:        graphqlgo.NewNonNull(graphqlgo.String),
+					},
+					"params": &graphqlgo.ArgumentConfig{
+						Description: "Job Parameters",
+						Type:        graphqlgo.NewList(jobArgTypeInput),
+					},
+				},
+				Resolve: func(p graphqlgo.ResolveParams) (interface{}, error) {
+					var jobName = p.Args["jobName"].(string)
+					var receivedParams = p.Args["params"].([]interface{})
+
+					var parameters = make(map[string]types.JobArgs, len(receivedParams))
+					for _, jobArg := range receivedParams {
+						parameters[jobArg.(map[string]interface{})["name"].(string)] = types.JobArgs{
+							Name:  jobArg.(map[string]interface{})["name"].(string),
+							Value: jobArg.(map[string]interface{})["value"].(string),
+						}
+					}
+					engineInstance := core.GetEngineInstance()
+					engineInstance.ExecuteStoredJob(jobName, parameters)
+					job, err := engineInstance.GetJobByName(jobName)
+					return job, err
+				},
+			},
 			"createJob": &graphqlgo.Field{
 				Type: jobType,
 				Args: graphqlgo.FieldConfigArgument{
@@ -92,14 +136,13 @@ var (
 					newJob := types.Job{
 						Name:       inp["name"].(string),
 						Entrypoint: inp["entrypoint"].(string),
-						Duration:   inp["duration"].(string),
 					}
 
-					newJob.Args = make([]types.JobArgs, len(inp["args"].([]interface{})))
-					for index, jobArg := range inp["args"].([]interface{}) {
-						newJob.Args[index] = types.JobArgs{
+					newJob.Parameters = make([]types.JobArgs, len(inp["params"].([]interface{})))
+					for index, jobArg := range inp["params"].([]interface{}) {
+						newJob.Parameters[index] = types.JobArgs{
 							Name:  jobArg.(map[string]interface{})["name"].(string),
-							Value: jobArg.(map[string]interface{})["value"].(string),
+							Value: jobArg.(map[string]interface{})["value"],
 						}
 					}
 
@@ -111,6 +154,15 @@ var (
 							OnSuccess: jobTask.(map[string]interface{})["onSuccess"].(string),
 							OnFailure: jobTask.(map[string]interface{})["onFailure"].(string),
 						}
+					}
+
+					var activation = inp["activation"].(map[string]interface{})
+
+					newJob.Activation = types.JobActivation{
+						Type: types.JobActivationType(activation["type"].(string)),
+					}
+					if activation["duration"] != nil {
+						newJob.Activation.Duration = activation["duration"].(string)
 					}
 
 					interfaces.NotifyJob(&newJob)
