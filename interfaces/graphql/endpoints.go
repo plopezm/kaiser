@@ -18,7 +18,6 @@ func init() {
 		Pretty:   true,
 		GraphiQL: true,
 	})
-	// http.HandleFunc("/graphql", corsMiddleware(graphQLHandler))
 	core.AddEndpoint("/graphql", graphqlHandler)
 }
 

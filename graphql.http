@@ -15,7 +15,7 @@ content-type: application/json
 {
     "operationName": null,
     "variables": {},
-    "query": "{\n  __schema {\n    queryType {\n      name\n      description\n      fields {\n        name\n        description\n        params {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"
+    "query": "{\n  __schema {\n    queryType {\n      name\n      description\n      fields {\n        name\n        description\n        args {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"
 }
 
 ### Introspection (Mutations)
@@ -25,7 +25,7 @@ content-type: application/json
 {
     "operationName": null,
     "variables": {},
-    "query": "{\n  __schema {\n    mutationType {\n      name\n      description\n      fields {\n        name\n        description\n        params {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"
+    "query": "{\n  __schema {\n    mutationType {\n      name\n      description\n      fields {\n        name\n        description\n        args {\n          name\n          description\n        }\n      }\n    }\n  }\n}\n"
 }
 
 ### Get Jobs

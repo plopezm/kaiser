@@ -4,28 +4,42 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/render"
 )
 
-func corsMiddleware(next func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		allowedHeaders := "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization,X-CSRF-Token"
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
-		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
-		next(w, r)
-	}
+var router *chi.Mux
+
+func init() {
+	router = chi.NewRouter()
+	router.Use(
+		render.SetContentType(render.ContentTypeJSON),
+		cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: true,
+			MaxAge:           300, // Maximum value not ignored by any of major browsers
+		}).Handler,
+		middleware.Logger,
+		middleware.DefaultCompress,
+		middleware.RedirectSlashes,
+		middleware.Recoverer,
+	)
 }
 
+// AddEndpoint Adds a http endpoint to the server
 func AddEndpoint(path string, handler http.Handler) {
-	http.Handle(path, handler)
+	router.Mount(path, handler)
 }
 
 // StartServer Starts graphql api on selected port
 func StartServer(port int) {
 	stringPort := strconv.Itoa(port)
-	err := http.ListenAndServe(":"+stringPort, nil)
-	if err != nil {
-		log.Println(err)
-	}
+	log.Fatal(http.ListenAndServe(":"+stringPort, router))
 }
