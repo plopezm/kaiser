@@ -1,0 +1,31 @@
+### Retrieving all jobs
+GET http://localhost:8080/v1/api/jobs HTTP/1.1
+
+### Creating new job
+POST http://localhost:8080/v1/api/jobs HTTP/1.1
+
+{
+    "version": "1",
+    "name": "testing1",
+    "entrypoint": "initial",
+    "activation": {
+        "type": "remote"
+    },
+    "params": [
+        {
+            "name": "hello"
+        }
+    ],
+    "tasks":{ 
+        "initial": {
+            "onSuccess": "",
+            "onFailure": "",
+            "script": "logger.info(hello);"
+        }
+    }
+}
+
+### Executing an existing job
+POST http://localhost:8080/v1/api/jobs/testing1 HTTP/1.1
+
+{}
