@@ -11,7 +11,7 @@
         "type": "local",
         "duration": "PT30S"
     },
-    "start": "getWeather",
+    "entrypoint": "getWeather",
     "tasks": {
         "getWeather": {
             "scriptFile": "getWeather.js",

@@ -12,7 +12,7 @@
             "name": "timeToWait"
         }
     ],
-    "start": "printHello",
+    "entrypoint": "printHello",
     "tasks": {
         "printHello": {
             "script": "logger.info('Hello me '+ me);logger.info('Hello stringify ' + JSON.stringify(me));",

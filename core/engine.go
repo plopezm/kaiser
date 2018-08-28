@@ -86,25 +86,25 @@ func (engine *JobEngine) addJob(job *types.Job) {
 }
 
 // ExecuteStoredJob Executes an existing job
-func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map[string]types.JobArgs) {
+func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map[string]interface{}) error {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 	storedJob, ok := engine.jobs[jobName]
 	if !ok {
-		log.Println("Job [" + jobName + "] cannot be executed because it does not exist")
-		return
+		return errors.New("Job [" + jobName + "] cannot be executed because it does not exist")
 	}
 
 	allParams := make([]types.JobArgs, 0)
 	for _, parameter := range storedJob.Parameters {
 		if value, ok := receivedParameters[parameter.Name]; ok {
-			parameter.Value = value.Value
+			parameter.Value = value
 		}
 		allParams = append(allParams, parameter)
 	}
 
 	log.Println("-> Executing job [ " + storedJob.Name + " ]")
 	go storedJob.Start(initializeVM(storedJob.Name, allParams))
+	return nil
 }
 
 func (engine *JobEngine) manageActivation(newJob *types.Job) {

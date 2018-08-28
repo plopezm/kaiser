@@ -26,7 +26,7 @@ type Job struct {
 	Name       string              `json:"name"`
 	Parameters []JobArgs           `json:"params"`
 	Activation JobActivation       `json:"activation"`
-	Entrypoint string              `json:"start"`
+	Entrypoint string              `json:"entrypoint"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
 	sync         *sync.Mutex
@@ -113,6 +113,12 @@ func (job *Job) Clean() {
 	job.Ticker.Stop()
 	close(job.OnDestroy)
 	close(job.OnActivation)
+}
+
+// TaskExist Returns true if the task exists
+func (job *Job) TaskExist(taskName string) bool {
+	_, ok := job.Tasks[taskName]
+	return ok
 }
 
 // GetScript Returns the script from inline declaration or from referenced declaration

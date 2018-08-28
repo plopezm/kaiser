@@ -28,4 +28,6 @@ POST http://localhost:8080/v1/api/jobs HTTP/1.1
 ### Executing an existing job
 POST http://localhost:8080/v1/api/jobs/testing1 HTTP/1.1
 
-{}
+{
+    "hello": "Hello with other parameters"
+}

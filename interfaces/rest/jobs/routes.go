@@ -36,11 +36,19 @@ func CreateJob(w http.ResponseWriter, r *http.Request) {
 	response := make(map[string]interface{})
 	if err != nil {
 		response["error"] = err.Error()
+		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, response)
 		return
 	}
 
-	interfaces.NotifyJob(&job)
+	err = interfaces.NotifyJob(&job)
+	if err != nil {
+		response["error"] = err.Error()
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response)
+		return
+	}
+
 	response["message"] = "Job creation success"
 	response["job"] = job
 	render.JSON(w, r, response)
@@ -48,19 +56,28 @@ func CreateJob(w http.ResponseWriter, r *http.Request) {
 
 // ExecuteJob Executes an existing job
 func ExecuteJob(w http.ResponseWriter, r *http.Request) {
-	jobName := chi.URLParam(r, "jobName")
-	engineInstance := core.GetEngineInstance()
-	engineInstance.ExecuteStoredJob(jobName, nil)
-	job, err := engineInstance.GetJobByName(jobName)
-
 	response := make(map[string]interface{})
+	jobName := chi.URLParam(r, "jobName")
+	decoder := json.NewDecoder(r.Body)
+	var params map[string]interface{}
+	err := decoder.Decode(&params)
 	if err != nil {
 		response["error"] = err.Error()
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, response)
+		return
+	}
+
+	engineInstance := core.GetEngineInstance()
+	err = engineInstance.ExecuteStoredJob(jobName, params)
+
+	if err != nil {
+		response["error"] = err.Error()
+		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, response)
 		return
 	}
 
 	response["message"] = "Job [" + jobName + "] Executed"
-	response["job"] = job
 	render.JSON(w, r, response)
 }

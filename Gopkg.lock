@@ -61,6 +61,12 @@
   revision = "15f95af6e78dcd2030d8195a138bd88d4f403546"
 
 [[projects]]
+  name = "github.com/storozhukBM/verifier"
+  packages = ["."]
+  revision = "00ea35202a5ce101c2dfd0dfd4d1f0b356a23271"
+  version = "v1.1.0"
+
+[[projects]]
   name = "gopkg.in/sourcemap.v1"
   packages = [
     ".",
@@ -72,6 +78,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "748c914f07daf052c22f023d0bd57eb09d8353b142d92bb6d41098424e0d7290"
+  inputs-digest = "4ba187db726138cc172396ba0f657d0fb67c1ca414b4dd774d1ff0ec73a8eb3b"
   solver-name = "gps-cdcl"
   solver-version = 1

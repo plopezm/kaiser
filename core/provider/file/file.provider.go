@@ -9,6 +9,7 @@ import (
 
 	"github.com/plopezm/kaiser/config"
 	"github.com/plopezm/kaiser/core/types"
+	"github.com/plopezm/kaiser/core/validation"
 	"github.com/plopezm/kaiser/utils"
 )
 
@@ -37,7 +38,10 @@ func parseFolder(folderName string) {
 	}
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
-			parseJob(folderName+"/", f.Name())
+			err := parseJob(folderName+"/", f.Name())
+			if err != nil {
+				log.Println("Error parsing job file ["+f.Name()+"]:", err)
+			}
 		} else if f.IsDir() && isNotKaiserDir(f.Name()) {
 			parseFolder(folderName + "/" + f.Name())
 		}
@@ -50,11 +54,11 @@ func isNotKaiserDir(folderName string) bool {
 }
 
 // parseJob Parses and creates a new job file
-func parseJob(folder string, filename string) {
+func parseJob(folder string, filename string) error {
 	var newJob types.Job
 	hash, err := utils.GetJSONObjectFromFileWithHash(folder+filename, &newJob)
 	if err != nil {
-		return
+		return err
 	}
 	newJob.Folder = folder
 	newJob.Hash = hash
@@ -70,5 +74,10 @@ func parseJob(folder string, filename string) {
 			task.Script = &fileContent
 		}
 	}
+	err = validation.VerifyJob(&newJob)
+	if err != nil {
+		return err
+	}
 	Channel <- newJob
+	return nil
 }

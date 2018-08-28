@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"github.com/plopezm/kaiser/core/types"
+	"github.com/plopezm/kaiser/core/validation"
 )
 
 // Channel the channel used to notify new jobs
@@ -13,11 +14,16 @@ func init() {
 }
 
 // NotifyJob Sends a job to the engine
-func NotifyJob(newJob *types.Job) {
+func NotifyJob(newJob *types.Job) error {
 	//newJob.Folder = folder
 	//newJob.Hash = hash
+	err := validation.VerifyJob(newJob)
+	if err != nil {
+		return err
+	}
 	for key, task := range newJob.Tasks {
 		task.Name = key
 	}
 	Channel <- *newJob
+	return nil
 }

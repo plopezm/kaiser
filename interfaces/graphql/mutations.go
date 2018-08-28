@@ -109,15 +109,15 @@ var (
 					var jobName = p.Args["jobName"].(string)
 					var receivedParams = p.Args["params"].([]interface{})
 
-					var parameters = make(map[string]types.JobArgs, len(receivedParams))
+					var parameters = make(map[string]interface{}, len(receivedParams))
 					for _, jobArg := range receivedParams {
-						parameters[jobArg.(map[string]interface{})["name"].(string)] = types.JobArgs{
-							Name:  jobArg.(map[string]interface{})["name"].(string),
-							Value: jobArg.(map[string]interface{})["value"].(string),
-						}
+						parameters[jobArg.(map[string]interface{})["name"].(string)] = jobArg.(map[string]interface{})["value"].(string)
 					}
 					engineInstance := core.GetEngineInstance()
-					engineInstance.ExecuteStoredJob(jobName, parameters)
+					err := engineInstance.ExecuteStoredJob(jobName, parameters)
+					if err != nil {
+						return nil, err
+					}
 					job, err := engineInstance.GetJobByName(jobName)
 					return job, err
 				},
@@ -165,8 +165,8 @@ var (
 						newJob.Activation.Duration = activation["duration"].(string)
 					}
 
-					interfaces.NotifyJob(&newJob)
-					return newJob, nil
+					err := interfaces.NotifyJob(&newJob)
+					return newJob, err
 				},
 			},
 		},
