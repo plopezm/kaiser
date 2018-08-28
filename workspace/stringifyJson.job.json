@@ -20,7 +20,7 @@
             "onFailure": "sayError"
         },
         "looseTime": {
-            "script": "logger.info('going to sleep '+timeToWait+' seconds');system.sleep(10, 'S');logger.info('Wake up');",
+            "script": "logger.info('going to sleep '+timeToWait+' seconds');process.sleep(10, 'S');logger.info('Wake up');",
             "onSuccess": "sayGoodbye",
             "onFailure": "sayError"
         },

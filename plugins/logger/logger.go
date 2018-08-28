@@ -4,20 +4,24 @@ import (
 	"log"
 	"os"
 
+	"github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/types"
-	"github.com/plopezm/kaiser/plugins"
 )
+
+func init() {
+	core.RegisterPlugin(new(LogPlugin))
+}
 
 // LogPlugin is used to save process context
 type LogPlugin struct {
 	context types.JobContext
 }
 
-// New Creates a new instance of Logger plugin
-func New(context types.JobContext) plugins.KaiserPlugin {
-	plugin := new(LogPlugin)
-	plugin.context = context
-	return plugin
+// GetInstance Creates a new plugin instance with a context
+func (plugin *LogPlugin) GetInstance(context types.JobContext) types.Plugin {
+	newPluginInstance := new(LogPlugin)
+	newPluginInstance.context = context
+	return newPluginInstance
 }
 
 // GetFunctions returns the functions to be registered in the VM

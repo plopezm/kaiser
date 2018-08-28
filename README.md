@@ -40,7 +40,7 @@ make -j2 devrun
 - [x] Script file dynamic read (scripts can be modified and reexecuted automatically)
 - [x] Argument setting
 - [x] [Job scheduling] Scheduling jobs using ISO 8601 Duration
-- [ ] [Job launcher] Add a way to launch jobs from http events
+- [x] [Job launcher] Add a way to launch jobs from http events
 - [ ] [Job management] GraphQL API for creating, executing, removing tasks remotely.
 - [ ] [Web interface] A web interface to manage kaiser 
 - [ ] [Plugins] More default plugins & runtime plugins (in Linux & OSX)

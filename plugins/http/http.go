@@ -5,10 +5,14 @@ import (
 	gohttp "net/http"
 	"time"
 
+	"github.com/plopezm/kaiser/core"
 	"github.com/plopezm/kaiser/core/types"
-	"github.com/plopezm/kaiser/plugins"
 	"github.com/robertkrimen/otto"
 )
+
+func init() {
+	core.RegisterPlugin(new(Plugin))
+}
 
 var netClient = &gohttp.Client{
 	Timeout: time.Second * 10,
@@ -21,19 +25,20 @@ type Response struct {
 	Headers    map[string][]string
 }
 
-type HttpPlugin struct {
+// Plugin Implements http function
+type Plugin struct {
 	context types.JobContext
 }
 
-// New Used by Kaiser, returns new functionality for Kaiser
-func New(context types.JobContext) plugins.KaiserPlugin {
-	plugin := new(HttpPlugin)
-	plugin.context = context
-	return plugin
+// GetInstance Creates a new plugin instance with a context
+func (plugin *Plugin) GetInstance(context types.JobContext) types.Plugin {
+	newPluginInstance := new(Plugin)
+	newPluginInstance.context = context
+	return newPluginInstance
 }
 
 // GetFunctions returns the functions to be registered in the VM
-func (plugin *HttpPlugin) GetFunctions() map[string]interface{} {
+func (plugin *Plugin) GetFunctions() map[string]interface{} {
 	functions := make(map[string]interface{})
 	functions["http"] = map[string]interface{}{
 		"get": plugin.Get,
@@ -42,7 +47,7 @@ func (plugin *HttpPlugin) GetFunctions() map[string]interface{} {
 }
 
 // Get Performs an http get request
-func (plugin *HttpPlugin) Get(call otto.FunctionCall) otto.Value {
+func (plugin *Plugin) Get(call otto.FunctionCall) otto.Value {
 	url, err := call.Argument(0).ToString()
 	resp, err := netClient.Get(url)
 	if err != nil {
