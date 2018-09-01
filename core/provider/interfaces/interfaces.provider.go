@@ -7,10 +7,10 @@ import (
 	"github.com/plopezm/kaiser/core/validation"
 )
 
-// Channel the channel used to notify new jobs
 var channel chan types.Job
 var once sync.Once
 
+// GetChannel the channel used to notify new jobs
 func GetChannel() chan types.Job {
 	once.Do(func() {
 		// This should prepare everything for thread looking for new jobs
