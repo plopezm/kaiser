@@ -1,4 +1,4 @@
-var resp = http.get(url);
+var resp = http.get(url, {"Accept": "application/json"});
 if (!resp.Body) {
     throw error(resp)
 }

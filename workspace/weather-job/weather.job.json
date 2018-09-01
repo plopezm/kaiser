@@ -9,7 +9,7 @@
     ],
     "activation": {
         "type": "local",
-        "duration": "PT30S"
+        "duration": "PT10S"
     },
     "entrypoint": "getWeather",
     "tasks": {

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/plopezm/kaiser/config"
@@ -14,27 +15,35 @@ import (
 )
 
 // Channel the channel used to notify new jobs
-var Channel chan types.Job
+var channel chan types.Job
+var once sync.Once
 
-func init() {
-	// This should prepare everything for thread looking for new files
-	Channel = make(chan types.Job)
-	go startNotifier()
+func GetChannel() chan types.Job {
+	once.Do(func() {
+		// This should prepare everything for thread looking for new files
+		channel = make(chan types.Job)
+		go startNotifier()
+	})
+	return channel
 }
 
 // StartParserScan Starts folder scan
 func startNotifier() {
 	for {
-		parseFolder(config.Configuration.Workspace)
+		err := parseFolder(config.Configuration.Workspace)
+		if err != nil {
+			log.Println("Workspace not found: ", err)
+			return
+		}
 		time.Sleep(5000 * time.Millisecond)
 	}
 }
 
 // parseFolder Scans the folders in the workspace
-func parseFolder(folderName string) {
+func parseFolder(folderName string) error {
 	files, err := ioutil.ReadDir(folderName)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, f := range files {
 		if !f.IsDir() && strings.HasSuffix(f.Name(), "job.json") {
@@ -46,6 +55,7 @@ func parseFolder(folderName string) {
 			parseFolder(folderName + "/" + f.Name())
 		}
 	}
+	return nil
 }
 
 // isNotKaiserDir Returns true or false depending on the folder found (this is usefull for Kaiser reserved folders)
@@ -78,6 +88,6 @@ func parseJob(folder string, filename string) error {
 	if err != nil {
 		return err
 	}
-	Channel <- newJob
+	channel <- newJob
 	return nil
 }

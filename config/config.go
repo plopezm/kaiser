@@ -3,21 +3,30 @@ package config
 import (
 	"log"
 	"os"
+	"sync"
 
 	"github.com/plopezm/kaiser/utils"
 )
 
 // Configuration The configuration object
 var Configuration ConfigurationData
+var once sync.Once
 
 func init() {
-	err := utils.GetJSONObjectFromFile("kaiser.config.json", &Configuration)
-	if err != nil {
-		log.Fatalln(err)
-		os.Exit(1)
-	}
-	configureLogger()
-	createWorkspace()
+	InitializeConfig()
+}
+
+// InitializeConfig Initializes the configuration
+func InitializeConfig() {
+	once.Do(func() {
+		err := utils.GetJSONObjectFromFile("kaiser.config.json", &Configuration)
+		if err != nil {
+			log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime | log.LUTC)
+			return
+		}
+		configureLogger()
+		createWorkspace()
+	})
 }
 
 func configureLogger() {

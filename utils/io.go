@@ -4,7 +4,6 @@ import (
 	"crypto/sha512"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -12,7 +11,6 @@ import (
 func GetJSONObjectFromFile(filepath string, object interface{}) error {
 	raw, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		log.Fatalln(err.Error())
 		return err
 	}
 	err = json.Unmarshal(raw, object)
@@ -23,7 +21,6 @@ func GetJSONObjectFromFile(filepath string, object interface{}) error {
 func GetJSONObjectFromFileWithHash(filepath string, object interface{}) ([]byte, error) {
 	raw, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		log.Fatalln(err.Error())
 		return nil, err
 	}
 	err = json.Unmarshal(raw, object)
@@ -37,7 +34,6 @@ func GetJSONObjectFromFileWithHash(filepath string, object interface{}) ([]byte,
 func ReadFileContent(filepath string) (*string, error) {
 	raw, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		log.Fatalln(err.Error())
 		return nil, err
 	}
 	content := string(raw)

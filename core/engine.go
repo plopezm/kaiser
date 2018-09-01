@@ -34,8 +34,8 @@ func GetEngineInstance() *JobEngine {
 		engineInstance.jobs = make(map[string]*types.Job)
 		engineInstance.jobsMapSync = &sync.Mutex{}
 		engineInstance.provider = provider.GetProvider()
-		engineInstance.provider.RegisterJobNotifier(file.Channel)
-		engineInstance.provider.RegisterJobNotifier(interfaces.Channel)
+		engineInstance.provider.RegisterJobNotifier(file.GetChannel())
+		engineInstance.provider.RegisterJobNotifier(interfaces.GetChannel())
 	})
 	return engineInstance
 }

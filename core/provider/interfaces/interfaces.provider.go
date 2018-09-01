@@ -1,16 +1,22 @@
 package interfaces
 
 import (
+	"sync"
+
 	"github.com/plopezm/kaiser/core/types"
 	"github.com/plopezm/kaiser/core/validation"
 )
 
 // Channel the channel used to notify new jobs
-var Channel chan types.Job
+var channel chan types.Job
+var once sync.Once
 
-func init() {
-	// This should prepare everything for thread looking for new files
-	Channel = make(chan types.Job)
+func GetChannel() chan types.Job {
+	once.Do(func() {
+		// This should prepare everything for thread looking for new jobs
+		channel = make(chan types.Job)
+	})
+	return channel
 }
 
 // NotifyJob Sends a job to the engine
@@ -24,6 +30,6 @@ func NotifyJob(newJob *types.Job) error {
 	for key, task := range newJob.Tasks {
 		task.Name = key
 	}
-	Channel <- *newJob
+	channel <- *newJob
 	return nil
 }
