@@ -9,14 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_ConfigurationSuite(t *testing.T) {
-	t.Run("Initialize config with a given configuration", whenInitializeConfigCreatesConfigFromAGivenConfiguration)
-	t.Run("Creating workspace from a empty configuration", whenCreateWorkspaceEmptyConfiguration)
-	t.Run("Create Workspace With Workspace Set In Config", whenCreateWorkspaceWithWorkspaceSetInConfig)
-	t.Run("Configure Logger with defined log folder", whenConfigureLoggerWithDefinedLogFolder)
-	t.Run("Configure Logger with undefined log folder", whenConfigureLoggerWithUndefinedLogFolder)
-}
-
 func afterTest() {
 	os.RemoveAll("logs")
 	os.RemoveAll("workspace")
@@ -31,7 +23,7 @@ func containsFileName(s []os.FileInfo, e string) bool {
 	return false
 }
 
-func whenInitializeConfigCreatesConfigFromAGivenConfiguration(t *testing.T) {
+func Test_whenInitializeConfigCreatesConfigFromAGivenConfiguration(t *testing.T) {
 	// Given
 	Configuration = ConfigurationData{
 		Workspace: "workspace",
@@ -51,7 +43,7 @@ func whenInitializeConfigCreatesConfigFromAGivenConfiguration(t *testing.T) {
 	afterTest()
 }
 
-func whenCreateWorkspaceEmptyConfiguration(t *testing.T) {
+func Test_whenCreateWorkspaceEmptyConfiguration(t *testing.T) {
 	// Given
 	Configuration = ConfigurationData{
 		Workspace: "",
@@ -68,7 +60,7 @@ func whenCreateWorkspaceEmptyConfiguration(t *testing.T) {
 	afterTest()
 }
 
-func whenCreateWorkspaceWithWorkspaceSetInConfig(t *testing.T) {
+func Test_whenCreateWorkspaceWithWorkspaceSetInConfig(t *testing.T) {
 	// Given
 	Configuration = ConfigurationData{
 		Workspace: "workspace",
@@ -83,7 +75,7 @@ func whenCreateWorkspaceWithWorkspaceSetInConfig(t *testing.T) {
 	afterTest()
 }
 
-func whenConfigureLoggerWithDefinedLogFolder(t *testing.T) {
+func Test_whenConfigureLoggerWithDefinedLogFolder(t *testing.T) {
 	// Given
 	Configuration = ConfigurationData{
 		LogFolder: "logs",
@@ -99,7 +91,7 @@ func whenConfigureLoggerWithDefinedLogFolder(t *testing.T) {
 	afterTest()
 }
 
-func whenConfigureLoggerWithUndefinedLogFolder(t *testing.T) {
+func Test_whenConfigureLoggerWithUndefinedLogFolder(t *testing.T) {
 	// Given
 	Configuration = ConfigurationData{
 		LogFolder: "",

@@ -28,12 +28,11 @@ func GetChannel() chan types.Job {
 }
 
 // StartParserScan Starts folder scan
-func startNotifier() {
+func startNotifier() error {
 	for {
 		err := parseFolder(config.Configuration.Workspace)
 		if err != nil {
-			log.Println("Workspace not found: ", err)
-			return
+			return err
 		}
 		time.Sleep(5000 * time.Millisecond)
 	}
@@ -43,6 +42,7 @@ func startNotifier() {
 func parseFolder(folderName string) error {
 	files, err := ioutil.ReadDir(folderName)
 	if err != nil {
+		log.Println("Workspace not found: ", err)
 		return err
 	}
 	for _, f := range files {

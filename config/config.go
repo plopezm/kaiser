@@ -12,10 +12,6 @@ import (
 var Configuration ConfigurationData
 var once sync.Once
 
-func init() {
-	InitializeConfig("kaiser.config.json")
-}
-
 // InitializeConfig Initializes the configuration
 func InitializeConfig(configFile string) {
 	once.Do(func() {
