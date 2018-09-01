@@ -17,6 +17,7 @@ import (
 var channel chan types.Job
 var once sync.Once
 
+// GetChannel Returns the provider channel
 func GetChannel() chan types.Job {
 	once.Do(func() {
 		// This should prepare everything for thread looking for new files
