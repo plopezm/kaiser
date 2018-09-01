@@ -15,7 +15,7 @@ build:
 	cp kaiser.config.json ./dist
 	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/kaiserd 
 test:
-	$(GOTEST) -v ./**/*_test.go
+	$(GOTEST) -cover ./...
 clean:
 	$(GOCLEAN)
 	rm -fr $(BUILD_DIR)

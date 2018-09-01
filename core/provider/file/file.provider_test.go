@@ -40,13 +40,17 @@ func Test_parseFolder_Workspace_Not_Found(t *testing.T) {
 	assert.NotNil(err)
 }
 
-func setup() {
+func setup() *types.Job {
 	os.Mkdir("workspace", 0700)
 	var job = new(types.Job)
 	types.InitializeJob(job)
 	script := ""
 	scriptFile := "testing.job.json"
 	job.Name = "Testing"
+	job.Activation = types.JobActivation{
+		Type: "remote",
+	}
+	job.Entrypoint = "testTask"
 	job.Tasks = make(map[string]*types.JobTask)
 	job.Tasks["testTask"] = &types.JobTask{
 		Name:       "testTask",
@@ -55,6 +59,11 @@ func setup() {
 		Script:     &script,
 		ScriptFile: &scriptFile,
 	}
+
+	return job
+}
+
+func createJobFile(job *types.Job) {
 	bytes, err := json.Marshal(job)
 	if err != nil {
 		log.Fatalln(err)
@@ -71,15 +80,47 @@ func afterTest() {
 	os.RemoveAll("workspace")
 }
 
-func Test_parseFolder_Workspace(t *testing.T) {
+func Test_parseFolder_Workspace_NotValid(t *testing.T) {
 	// Given
-	setup()
+	job := setup()
+	job.Entrypoint = ""
+	createJobFile(job)
+
 	config.Configuration = config.ConfigurationData{
 		Workspace: "./",
 		LogFolder: "./",
 	}
 
+	// When
 	err := parseFolder(config.Configuration.Workspace)
+
+	// Then
+	assert := assert.New(t)
+	assert.Nil(err)
+	afterTest()
+}
+
+func Test_GetChannel(t *testing.T) {
+	// When
+	ch := GetChannel()
+
+	// Then
+	assert := assert.New(t)
+	assert.NotNil(ch)
+}
+
+func Test_parseJob(t *testing.T) {
+	// Given
+	ch := GetChannel()
+	job := setup()
+	createJobFile(job)
+
+	// When
+	go func() {
+		job := <-ch
+		assert.Equal(t, "Testing", job.Name)
+	}()
+	err := parseJob("workspace/", "testing.job.json")
 
 	// Then
 	assert := assert.New(t)
