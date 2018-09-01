@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"os"
 	"sync"
 	"testing"
 
@@ -19,7 +18,6 @@ func Test_GetChannel(t *testing.T) {
 }
 
 func setup() *types.Job {
-	os.Mkdir("workspace", 0700)
 	var job = new(types.Job)
 	types.InitializeJob(job)
 	script := ""
