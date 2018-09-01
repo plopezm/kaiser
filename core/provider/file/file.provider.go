@@ -3,7 +3,6 @@ package file
 import (
 	"io/ioutil"
 	"log"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -77,8 +76,8 @@ func parseJob(folder string, filename string) error {
 		if task.ScriptFile != nil {
 			raw, err := ioutil.ReadFile(folder + *task.ScriptFile)
 			if err != nil {
-				log.Fatalln(err.Error())
-				os.Exit(1)
+				log.Println(err.Error())
+				return err
 			}
 			fileContent := string(raw)
 			task.Script = &fileContent

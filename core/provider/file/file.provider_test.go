@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/plopezm/kaiser/config"
@@ -112,18 +113,41 @@ func Test_GetChannel(t *testing.T) {
 func Test_parseJob(t *testing.T) {
 	// Given
 	ch := GetChannel()
+	var wg sync.WaitGroup
+
 	job := setup()
 	createJobFile(job)
 
 	// When
+	wg.Add(1)
 	go func() {
+		t.Log("Starting reading from channel")
 		job := <-ch
+		t.Log("Job read from channel")
 		assert.Equal(t, "Testing", job.Name)
+		wg.Done()
 	}()
 	err := parseJob("workspace/", "testing.job.json")
+	t.Log("Job parsed")
 
 	// Then
 	assert := assert.New(t)
 	assert.Nil(err)
+	wg.Wait()
+	afterTest()
+}
+
+func Test_parseJob_ScriptFile_NotFound(t *testing.T) {
+	job := setup()
+	var scriptFile = "DoesNotExist"
+	job.Tasks["testTask"].ScriptFile = &scriptFile
+	createJobFile(job)
+
+	// When
+	err := parseJob("workspace/", "testing.job.json")
+
+	// Then
+	assert := assert.New(t)
+	assert.NotNil(err)
 	afterTest()
 }
