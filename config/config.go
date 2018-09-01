@@ -13,34 +13,45 @@ var Configuration ConfigurationData
 var once sync.Once
 
 func init() {
-	InitializeConfig()
+	InitializeConfig("kaiser.config.json")
 }
 
 // InitializeConfig Initializes the configuration
-func InitializeConfig() {
+func InitializeConfig(configFile string) {
 	once.Do(func() {
-		err := utils.GetJSONObjectFromFile("kaiser.config.json", &Configuration)
+		err := utils.GetJSONObjectFromFile(configFile, &Configuration)
 		if err != nil {
-			log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime | log.LUTC)
-			return
+			Configuration = ConfigurationData{
+				Workspace: "workspace",
+				LogFolder: "logs",
+			}
 		}
-		configureLogger()
+		err = configureLogger()
+		if err != nil {
+			log.Println(err)
+		}
 		createWorkspace()
 	})
 }
 
-func configureLogger() {
-	f, err := os.OpenFile("logs/kaiser.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+func configureLogger() error {
+	if Configuration.LogFolder == "" {
+		Configuration.LogFolder = "logs"
+	}
+	os.Mkdir(Configuration.LogFolder, 0700)
+	f, err := os.OpenFile(Configuration.LogFolder+"/kaiser.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0700)
 	if err != nil {
-		os.Mkdir("logs", 777)
-		configureLogger()
+		return err
 	}
 	log.SetOutput(f)
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime | log.LUTC)
-	log.Println("========= Starting Kaiser =========")
+	return nil
 }
 
-func createWorkspace() {
-	log.Println("Creating workspace if it does not exist in", Configuration.Workspace)
-	os.Mkdir(Configuration.Workspace, 777)
+func createWorkspace() error {
+	if Configuration.Workspace == "" {
+		Configuration.Workspace = "workspace"
+	}
+	os.Mkdir(Configuration.Workspace, 0700)
+	return nil
 }

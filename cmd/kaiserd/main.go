@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	_ "github.com/plopezm/kaiser/config"
 	"github.com/plopezm/kaiser/core"
 	_ "github.com/plopezm/kaiser/interfaces/graphql"
@@ -11,6 +13,7 @@ import (
 )
 
 func main() {
+	log.Println("========= Starting Kaiser =========")
 	go core.StartServer(8080)
 	engineInstance := core.GetEngineInstance()
 	engineInstance.Start()
