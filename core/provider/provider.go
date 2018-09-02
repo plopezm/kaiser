@@ -2,6 +2,7 @@ package provider
 
 import (
 	"bytes"
+	"errors"
 	"sync"
 
 	"github.com/plopezm/kaiser/core/types"
@@ -51,11 +52,17 @@ func (provider *JobProvider) getExistingJobHash(name string) ([]byte, bool) {
 
 func observeNotifier(notifierChannel chan types.Job) {
 	for newJob := range notifierChannel {
-		storedJobHash, ok := provider.getExistingJobHash(newJob.Name)
-		// If the job has changed, the we should check it
-		if !ok || bytes.Compare(storedJobHash, newJob.Hash) != 0 {
-			provider.addNewJobHash(&newJob)
-			provider.Channel <- newJob
-		}
+		checkJobHash(&newJob)
 	}
+}
+
+func checkJobHash(newJob *types.Job) error {
+	storedJobHash, ok := provider.getExistingJobHash(newJob.Name)
+	// If the job has changed, the we should check it
+	if !ok || bytes.Compare(storedJobHash, newJob.Hash) != 0 {
+		provider.addNewJobHash(newJob)
+		provider.Channel <- *newJob
+		return nil
+	}
+	return errors.New("Job already exists")
 }
