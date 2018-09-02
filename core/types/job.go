@@ -12,7 +12,6 @@ func InitializeJob(job *Job) {
 	job.Status = STOPPED
 	job.sync = &sync.Mutex{}
 	job.statusSync = &sync.Mutex{}
-	job.OnActivation = make(chan bool)
 	job.OnDestroy = make(chan bool)
 	job.Ticker = &time.Ticker{
 		C: nil,
@@ -29,14 +28,13 @@ type Job struct {
 	Entrypoint string              `json:"entrypoint"`
 	Tasks      map[string]*JobTask `json:"tasks"`
 	// Internal attributes
-	sync         *sync.Mutex
-	Status       JobStatus `json:"status"`
-	statusSync   *sync.Mutex
-	Folder       string       `json:"-"`
-	Hash         []byte       `json:"hash"`
-	OnActivation chan bool    `json:"-"`
-	OnDestroy    chan bool    `json:"-"`
-	Ticker       *time.Ticker `json:"-"`
+	sync       *sync.Mutex
+	Status     JobStatus `json:"status"`
+	statusSync *sync.Mutex
+	Folder     string       `json:"-"`
+	Hash       []byte       `json:"hash"`
+	OnDestroy  chan bool    `json:"-"`
+	Ticker     *time.Ticker `json:"-"`
 }
 
 // JobArgs Represents the input arguments to the executor
@@ -112,7 +110,6 @@ func (job *Job) Copy() (copy Job) {
 func (job *Job) Clean() {
 	job.Ticker.Stop()
 	close(job.OnDestroy)
-	close(job.OnActivation)
 }
 
 // TaskExist Returns true if the task exists

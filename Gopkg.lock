@@ -13,8 +13,8 @@
     ".",
     "middleware"
   ]
-  revision = "e83ac2304db3c50cf03d96a2fcd39009d458bc35"
-  version = "v3.3.2"
+  revision = "b5294d10673813fac8558e7f47242bc9e61b4c25"
+  version = "v3.3.3"
 
 [[projects]]
   name = "github.com/go-chi/cors"
@@ -96,6 +96,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3b793b1181f8ddec24a8603804195ecdfec45ce62f43d266f8690d45555ebbd2"
+  inputs-digest = "7bee627f9537fe9e71fb2f554c21b203e0facfa5f4b7c5ae6d7fd44237ffceda"
   solver-name = "gps-cdcl"
   solver-version = 1

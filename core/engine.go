@@ -87,11 +87,21 @@ func (engine *JobEngine) addJob(job *types.Job) {
 
 // ExecuteStoredJob Executes an existing job
 func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map[string]interface{}) error {
+	storedJob, allParams, err := engine.prepareJobAndParams(jobName, receivedParameters)
+	if err != nil {
+		return err
+	}
+	log.Println("-> Executing job [ " + storedJob.Name + " ]")
+	go storedJob.Start(initializeVM(storedJob.Name, allParams))
+	return nil
+}
+
+func (engine *JobEngine) prepareJobAndParams(jobName string, receivedParameters map[string]interface{}) (*types.Job, []types.JobArgs, error) {
 	engine.jobsMapSync.Lock()
 	defer engine.jobsMapSync.Unlock()
 	storedJob, ok := engine.jobs[jobName]
 	if !ok {
-		return errors.New("Job [" + jobName + "] cannot be executed because it does not exist")
+		return nil, nil, errors.New("Job [" + jobName + "] cannot be executed because it does not exist")
 	}
 
 	allParams := make([]types.JobArgs, 0)
@@ -101,21 +111,21 @@ func (engine *JobEngine) ExecuteStoredJob(jobName string, receivedParameters map
 		}
 		allParams = append(allParams, parameter)
 	}
-
-	log.Println("-> Executing job [ " + storedJob.Name + " ]")
-	go storedJob.Start(initializeVM(storedJob.Name, allParams))
-	return nil
+	return storedJob, allParams, nil
 }
 
-func (engine *JobEngine) manageActivation(newJob *types.Job) {
+func (engine *JobEngine) manageActivation(newJob *types.Job) error {
 	jobActivation := newJob.Activation
 	if jobActivation.Type == types.LOCAL && len(jobActivation.Duration) > 0 {
 		duration := utils.ParseDuration(jobActivation.Duration)
 		if duration > 0 {
 			newJob.Ticker = time.NewTicker(duration)
 		}
+	} else {
+		return errors.New("The job activaition is not type 'local' or duration is not set")
 	}
 	go engine.periodHandler(newJob)
+	return nil
 }
 
 func (engine *JobEngine) periodHandler(job *types.Job) {
@@ -123,8 +133,6 @@ func (engine *JobEngine) periodHandler(job *types.Job) {
 	for {
 		select {
 		case <-job.Ticker.C:
-			engine.ExecuteStoredJob(job.Name, nil)
-		case <-job.OnActivation:
 			engine.ExecuteStoredJob(job.Name, nil)
 		case <-job.OnDestroy:
 			job.Clean()
@@ -137,13 +145,17 @@ func (engine *JobEngine) periodHandler(job *types.Job) {
 func (engine *JobEngine) Start() {
 	for {
 		job := <-engine.provider.Channel
-		log.Println("Received job [" + job.Name + "] from provider")
-		storedJob, ok := engine.jobs[job.Name]
-		if ok {
-			storedJob.OnDestroy <- true
-		}
-		types.InitializeJob(&job)
-		engine.manageActivation(&job)
-		engine.addJob(&job)
+		engine.processReceivedJob(&job)
 	}
+}
+
+func (engine *JobEngine) processReceivedJob(job *types.Job) {
+	log.Println("Received job [" + job.Name + "] from provider")
+	storedJob, ok := engine.jobs[job.Name]
+	if ok {
+		storedJob.OnDestroy <- true
+	}
+	types.InitializeJob(job)
+	engine.manageActivation(job)
+	engine.addJob(job)
 }
